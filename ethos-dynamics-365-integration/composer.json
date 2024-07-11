@@ -1,0 +1,15 @@
+{
+    "name": "hacklab/ethos-dynamics-365-integration",
+    "description": "Plugin para conectar Dynamics 365 com WordPress.",
+    "type": "wordpress-plugin",
+    "require": {
+        "alexacrm/dynamics-webapi-toolkit": "dev-master"
+    },
+    "license": "GPL-2.0",
+    "autoload": {
+        "psr-4": {
+            "EthosDynamics365Integration\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
