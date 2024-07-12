@@ -14,10 +14,10 @@
     git clone git@github.com:Ethos-ti/EthosDynamics365IntegrationPlugin.git
     ```
 
-2. Navigate to the project directory:
+2. Navigate to the theme directory:
 
     ```bash
-    cd EthosDynamics365IntegrationPlugin
+    cd EthosDynamics365IntegrationPlugin/ethos-dynamics-365-integration
     ```
 
 3. Install Composer dependencies:
