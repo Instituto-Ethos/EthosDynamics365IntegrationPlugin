@@ -90,20 +90,20 @@ function get_crm_data( $entity, $page = 1, $limit = 10 ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
         try {
             $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
+            $query->AddOrder( 'createdon', \AlexaCRM\Xrm\Query\OrderType::Descending() );
             $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
             $paging_info->Count = $limit;
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
 
-            $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
-                get_server_url(),
-                get_application_id(),
-                get_client_secret()
-            );
+            $client = get_client_on_dynamics();
 
-            return $client->RetrieveMultiple( $query );
+            if ( $client !== false ) {
+                return $client->RetrieveMultiple( $query );
+            }
+
         } catch ( \Exception $e ) {
-            do_action( 'qm/debug', $e->getMessage() );
+            do_action( 'logger', $e->getMessage() );
         }
     }
 
