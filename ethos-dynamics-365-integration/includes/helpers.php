@@ -88,13 +88,24 @@ function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
-function get_crm_entities( $entity, $limit = 10 ) {
+function get_crm_entities( $entity, $args = [] ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
+        $params = wp_parse_args($args, [
+            'count' => 10,
+            'orderby' => 'createdon',
+            'order' => 'DESC',
+        ]);
+
         try {
             $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
-            $query->AddOrder( 'createdon', \AlexaCRM\Xrm\Query\OrderType::Descending() );
+            $query->AddOrder(
+                $params['orderby'],
+                $params['order'] === 'ASC'
+                    ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
+                    : \AlexaCRM\Xrm\Query\OrderType::Descending()
+                );
             $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
-            $paging_info->Count = $limit;
+            $paging_info->Count = $params['count'];
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
 
@@ -112,13 +123,24 @@ function get_crm_entities( $entity, $limit = 10 ) {
     return false;
 }
 
-function iterate_crm_entities( $entity, $limit = 10, $max_pages = PHP_INT_MAX ) {
+function iterate_crm_entities( $entity, $args = [] ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
+        $params = wp_parse_args($args, [
+            'count' => 10,
+            'max_pages' => PHP_INT_MAX,
+            'orderby' => 'createdon',
+            'order' => 'DESC',
+        ]);
+
         try {
             $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
-            $query->AddOrder( 'createdon', \AlexaCRM\Xrm\Query\OrderType::Descending() );
-            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
-            $paging_info->Count = $limit;
+            $query->AddOrder(
+                $params['orderby'],
+                $params['order'] === 'ASC'
+                    ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
+                    : \AlexaCRM\Xrm\Query\OrderType::Descending()
+                );            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
+            $paging_info->Count = $params['count'];
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
 
@@ -132,7 +154,7 @@ function iterate_crm_entities( $entity, $limit = 10, $max_pages = PHP_INT_MAX ) 
                 $current_page = 1;
 
                 while ( $result->MoreRecords ) {
-                    if ($current_page >= $max_pages) {
+                    if ($current_page >= $params['max_pages']) {
                         break;
                     }
 
