@@ -191,17 +191,17 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
     return false;
 }
 
-function get_server_url() {
+function get_crm_server_url() {
     $options = get_option( 'msdyncrm_options' );
     return $options['serverUrl'] ?? '';
 }
 
-function get_application_id() {
+function get_crm_application_id() {
     $options = get_option( 'msdyncrm_options' );
     return $options['applicationId'] ?? '';
 }
 
-function get_client_secret() {
+function get_crm_client_secret() {
     $options = get_option( 'msdyncrm_options' );
     return $options['clientSecret'] ?? '';
 }
