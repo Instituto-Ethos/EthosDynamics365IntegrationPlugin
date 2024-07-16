@@ -86,7 +86,7 @@ function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
-function get_crm_data( $entity, $page = 1, $limit = 10 ) {
+function get_crm_entities( $entity, $page = 1, $limit = 10 ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
         try {
             $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
@@ -110,7 +110,45 @@ function get_crm_data( $entity, $page = 1, $limit = 10 ) {
     return false;
 }
 
-function get_crm_data_by_id( string $entity_name, string $entity_id ) {
+function iterate_crm_entities( $entity, $limit = 10, $max_pages = PHP_INT_MAX ) {
+    if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
+        try {
+            $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
+            $query->AddOrder( 'createdon', \AlexaCRM\Xrm\Query\OrderType::Descending() );
+            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
+            $paging_info->Count = $limit;
+            $paging_info->ReturnTotalRecordCount = true;
+            $query->PageInfo = $paging_info;
+
+            $client = get_client_on_dynamics();
+
+            if ( $client !== false ) {
+                $result = $client->RetrieveMultiple( $query );
+
+                yield from $result->Entities;
+
+                $current_page = 1;
+
+                while ( $result->MoreRecords ) {
+                    if ($current_page >= $max_pages) {
+                        break;
+                    }
+
+                    $current_page++;
+
+                    $paging_info->PagingCookie = $result->PagingCookie;
+                    $result = $client->RetrieveMultiple( $query );
+
+                    yield from $result->Entities;
+                }
+            }
+        } catch ( \Exception $e ) {
+            do_action( 'logger', $e->getMessage() );
+        }
+    }
+}
+
+function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
 
     $client = get_client_on_dynamics();
 
