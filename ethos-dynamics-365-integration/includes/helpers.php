@@ -88,7 +88,7 @@ function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
-function get_crm_entities( $entity, $page = 1, $limit = 10 ) {
+function get_crm_entities( $entity, $limit = 10 ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
         try {
             $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
