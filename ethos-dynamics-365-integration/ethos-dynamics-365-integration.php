@@ -29,6 +29,7 @@ require_once( 'includes/check-plugin-dependencies.php' );
 
 if ( hacklabr\check_plugin_dependencies() ) {
     require_once( 'includes/helpers.php' );
+    require_once( 'includes/events.php' );
     require_once( 'includes/admin-menu.php' );
     require_once( 'includes/dynamics365-data-sender.php' );
     require_once( 'includes/cron.php' );

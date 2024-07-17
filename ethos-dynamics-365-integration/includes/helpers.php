@@ -259,4 +259,20 @@ function get_crm_client_secret() {
     return $options['clientSecret'] ?? '';
 }
 
+function format_iso8601_to_events( $date ) {
+    $dateTime = new \DateTime( $date );
+
+    $eventDate = $dateTime->format( 'Y-m-d' );
+
+    $eventHour = $dateTime->format( 'g' );
+    $eventMinute = $dateTime->format( 'i' );
+    $eventMeridian = $dateTime->format( 'a' );
+
+    return [
+        'EventDate'     => $eventDate,
+        'EventHour'     => $eventHour,
+        'EventMinute'   => $eventMinute,
+        'EventMeridian' => $eventMeridian
+    ];
+}
 
