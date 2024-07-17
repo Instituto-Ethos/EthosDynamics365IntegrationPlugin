@@ -80,7 +80,7 @@ function approval_entity( $post_id ) {
 
     if ( ( array_search( $post_id, $waiting_approval ) ) !== false ) {
         $get_entity_id = get_post_meta( $post_id, 'entity_lead', true );
-        $get_crm_data_by_id = get_crm_data_by_id( 'lead', $get_entity_id );
+        $get_crm_data_by_id = get_crm_entity_by_id( 'lead', $get_entity_id );
 
         if ( $get_crm_data_by_id && $get_crm_data_by_id->GetAttributeValue( 'parentaccountid' ) ) {
             $parent_account_id = $get_crm_data_by_id->GetAttributeValue( 'parentaccountid' );
