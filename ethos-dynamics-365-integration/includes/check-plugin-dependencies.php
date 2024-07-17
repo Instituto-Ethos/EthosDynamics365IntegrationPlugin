@@ -9,7 +9,8 @@ function check_plugin_dependencies() {
         '\AlexaCRM\WebAPI\ClientFactory',
         '\AlexaCRM\Xrm\ColumnSet',
         '\AlexaCRM\Xrm\Entity',
-        '\AlexaCRM\Xrm\Query\OrderType'
+        '\AlexaCRM\Xrm\Query\OrderType',
+        '\AlexaCRM\Xrm\Query\QueryByAttribute'
     ];
 
     foreach ( $required_classes as $class ) {
