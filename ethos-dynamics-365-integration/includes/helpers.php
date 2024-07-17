@@ -89,35 +89,42 @@ function array_filter_args( $value ) {
 }
 
 function get_crm_entities( $entity, $args = [] ) {
-    if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
-        $params = wp_parse_args($args, [
-            'count' => 10,
-            'orderby' => 'createdon',
-            'order' => 'DESC',
-        ]);
+    $params = wp_parse_args($args, [
+        'count'   => 10,
+        'orderby' => 'createdon',
+        'order'   => 'DESC'
+    ]);
 
-        try {
-            $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
-            $query->AddOrder(
-                $params['orderby'],
-                $params['order'] === 'ASC'
-                    ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
-                    : \AlexaCRM\Xrm\Query\OrderType::Descending()
-                );
-            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
-            $paging_info->Count = $params['count'];
-            $paging_info->ReturnTotalRecordCount = true;
-            $query->PageInfo = $paging_info;
+    $cache_key = 'crm_entities_' . md5( $entity . serialize( $params ) );
+    $cached_data = get_transient( $cache_key );
 
-            $client = get_client_on_dynamics();
+    if ( $cached_data !== false ) {
+        return $cached_data;
+    }
 
-            if ( $client !== false ) {
-                return $client->RetrieveMultiple( $query );
-            }
+    try {
+        $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
+        $query->AddOrder(
+            $params['orderby'],
+            $params['order'] === 'ASC'
+                ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
+                : \AlexaCRM\Xrm\Query\OrderType::Descending()
+            );
+        $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
+        $paging_info->Count = $params['count'];
+        $paging_info->ReturnTotalRecordCount = true;
+        $query->PageInfo = $paging_info;
 
-        } catch ( \Exception $e ) {
-            do_action( 'logger', $e->getMessage() );
+        $client = get_client_on_dynamics();
+
+        if ( $client !== false ) {
+            $result = $client->RetrieveMultiple( $query );
+            set_transient( $cache_key, $result, 2 * HOUR_IN_SECONDS );
+            return $result;
         }
+
+    } catch ( \Exception $e ) {
+        do_action( 'logger', $e->getMessage() );
     }
 
     return false;
