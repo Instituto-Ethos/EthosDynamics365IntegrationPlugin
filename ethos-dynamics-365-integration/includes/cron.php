@@ -25,3 +25,5 @@ function schedule_approval_entity( $post_id ) {
 }
 
 add_action( 'init', 'hacklabr\schedule_approval_entity' );
+
+add_action( 'hacklabr\\run_every_hour', 'hacklabr\\do_get_crm_events' );
