@@ -45,19 +45,29 @@ function create_event_on_wp( $entity ) {
     $end_date   = format_iso8601_to_events( $entity->Attributes['fut_dt_dataehoratermino'] );
     $title      = $entity->Attributes['fut_name'] ?? '';
     $url        = $entity->Attributes['fut_st_website'] ?? '';
+    $cost       = $entity->Attributes['fut_valorinscricao'] ?? '';
+
+    do_action( 'qm/debug', $entity->Attributes );
 
     $args = [
-        'EventEndDate'       => $end_date['EventDate'],
-        'EventEndHour'       => $end_date['EventHour'],
-        'EventEndMeridian'   => $end_date['EventMeridian'],
-        'EventEndMinute'     => $end_date['EventMinute'],
-        'EventStartDate'     => $start_date['EventDate'],
-        'EventStartHour'     => $start_date['EventHour'],
-        'EventStartMeridian' => $start_date['EventMeridian'],
-        'EventStartMinute'   => $start_date['EventMinute'],
-        'EventURL'           => $url,
-        'post_status'        => 'publish',
-        'post_title'         => $title
+        'EventCost'               => format_currency_value( $cost ),
+        'EventCurrencyCode'       => 'BRL',
+        'EventCurrencyPosition'   => 'prefix',
+        'EventCurrencySymbol'     => 'R$',
+        'EventDateTimeSeparator'  => ' @ ',
+        'EventEndDate'            => $end_date['EventDate'],
+        'EventEndHour'            => $end_date['EventHour'],
+        'EventEndMeridian'        => $end_date['EventMeridian'],
+        'EventEndMinute'          => $end_date['EventMinute'],
+        'EventStartDate'          => $start_date['EventDate'],
+        'EventStartHour'          => $start_date['EventHour'],
+        'EventStartMeridian'      => $start_date['EventMeridian'],
+        'EventStartMinute'        => $start_date['EventMinute'],
+        'EventTimeRangeSeparator' => ' - ',
+        'EventTimezone'           => 'UTC-3',
+        'EventURL'                => $url,
+        'post_status'             => 'publish',
+        'post_title'              => $title
     ];
 
     $args = array_filter( $args );

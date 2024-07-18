@@ -230,12 +230,20 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
     $client = get_client_on_dynamics();
 
     if ( $client !== false ) {
+        $cache_key = 'crm_entities_' . md5( $entity_name . $entity_id );
+        $cached_data = get_transient( $cache_key );
+
+        if ( $cached_data !== false ) {
+            return $cached_data;
+        }
 
         $column_set = new \AlexaCRM\Xrm\ColumnSet();
         $column_set->AllColumns = true;
 
         try {
-            return $client->Retrieve( $entity_name, $entity_id, $column_set );
+            $result = $client->Retrieve( $entity_name, $entity_id, $column_set );
+            set_transient( $cache_key, $result, 2 * HOUR_IN_SECONDS );
+            return $result;
         } catch ( \Exception $e ) {
             do_action( 'logger', $e->getMessage() );
         }
@@ -260,11 +268,11 @@ function get_crm_client_secret() {
 }
 
 function format_iso8601_to_events( $date ) {
-    $dateTime = new \DateTime( $date );
+    $dateTime = new \DateTime( $date, new \DateTimeZone( 'UTC' ) );
+    $dateTime->setTimezone( new \DateTimeZone( 'America/Sao_Paulo' ) );
 
     $eventDate = $dateTime->format( 'Y-m-d' );
-
-    $eventHour = $dateTime->format( 'g' );
+    $eventHour = $dateTime->format( 'H' );
     $eventMinute = $dateTime->format( 'i' );
     $eventMeridian = $dateTime->format( 'a' );
 
@@ -276,3 +284,18 @@ function format_iso8601_to_events( $date ) {
     ];
 }
 
+function format_currency_value( $value ) {
+    $value = str_replace( ['R$', ' '], '', $value );
+
+    $value = str_replace( ',', '.', $value );
+
+    if ( is_numeric( $value ) ) {
+        if ( strpos( $value, '.' ) !== false && strlen( substr( strrchr( $value, '.' ), 1 ) ) <= 2 ) {
+            $value = number_format( ( float ) $value, 2, ',', '.' );
+        } else {
+            $value = number_format( ( float ) $value, 2, ',', '.' );
+        }
+    }
+
+    return $value;
+}
