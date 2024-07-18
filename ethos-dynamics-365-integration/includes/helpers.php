@@ -230,7 +230,7 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
     $client = get_client_on_dynamics();
 
     if ( $client !== false ) {
-        $cache_key = 'crm_entities_' . md5( $entity_name . $entity_id );
+        $cache_key = 'crm_entity_' .  $entity_name . '_' . $entity_id;
         $cached_data = get_transient( $cache_key );
 
         if ( $cached_data !== false ) {
