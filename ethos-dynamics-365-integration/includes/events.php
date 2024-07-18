@@ -88,7 +88,11 @@ function get_crm_projects_by_type( $name, $args = [] ) {
     if ( $get_all_tipodeprojeto ) {
         foreach ( $get_all_tipodeprojeto as $tipoparceria ) {
             if ( $tipoparceria->Attributes['fut_name'] == $name ) {
-                $result = get_crm_entities_by_attribute( 'fut_projeto', 'fut_lk_tipoparceria', $tipoparceria->Id, $args );
+                if ( empty( $args['filters'] ) ) {
+                    $args['filters'] = [];
+                }
+                $args['filters']['fut_lk_tipoparceria'] = $tipoparceria->Id;
+                $result = get_crm_entities( 'fut_projeto', $args );
                 $result = $result->Entities;
             }
         }

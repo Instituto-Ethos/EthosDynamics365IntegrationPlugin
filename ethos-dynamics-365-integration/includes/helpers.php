@@ -92,7 +92,8 @@ function get_crm_entities( $entity, $args = [] ) {
     $params = wp_parse_args($args, [
         'count'   => 10,
         'orderby' => 'createdon',
-        'order'   => 'DESC'
+        'order'   => 'DESC',
+        'filters' => [],
     ]);
 
     $cache_key = 'crm_entities_' . md5( $entity . serialize( $params ) );
@@ -110,50 +111,9 @@ function get_crm_entities( $entity, $args = [] ) {
                 ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
                 : \AlexaCRM\Xrm\Query\OrderType::Descending()
             );
-        $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
-        $paging_info->Count = $params['count'];
-        $paging_info->ReturnTotalRecordCount = true;
-        $query->PageInfo = $paging_info;
-
-        $client = get_client_on_dynamics();
-
-        if ( $client !== false ) {
-            $result = $client->RetrieveMultiple( $query );
-            set_transient( $cache_key, $result, 2 * HOUR_IN_SECONDS );
-            return $result;
+        foreach ( $params['filters'] as $attribute => $value ) {
+            $query->AddAttributeValue( $attribute, $value );
         }
-
-    } catch ( \Exception $e ) {
-        do_action( 'logger', $e->getMessage() );
-    }
-
-    return false;
-}
-
-function get_crm_entities_by_attribute( $entity, $attribute, $value, $args = [] ) {
-    $params = wp_parse_args( $args, [
-        'count'   => 10,
-        'orderby' => 'createdon',
-        'order'   => 'DESC'
-    ] );
-
-    $cache_key = 'crm_entities_' . md5( $entity . $attribute . $value . serialize( $params ) );
-    $cached_data = get_transient( $cache_key );
-
-    if ( $cached_data !== false ) {
-        return $cached_data;
-    }
-
-    try {
-        $query = new \AlexaCRM\Xrm\Query\QueryByAttribute( $entity );
-        $query->AddOrder(
-            $params['orderby'],
-            $params['order'] === 'ASC'
-                ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
-                : \AlexaCRM\Xrm\Query\OrderType::Descending()
-        );
-
-        $query->AddAttributeValue( $attribute, $value );
 
         $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
         $paging_info->Count = $params['count'];
@@ -174,7 +134,6 @@ function get_crm_entities_by_attribute( $entity, $attribute, $value, $args = [] 
 
     return false;
 }
-
 
 function iterate_crm_entities( $entity, $args = [] ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
@@ -183,6 +142,7 @@ function iterate_crm_entities( $entity, $args = [] ) {
             'max_pages' => PHP_INT_MAX,
             'orderby' => 'createdon',
             'order' => 'DESC',
+            'filters' => [],
         ]);
 
         try {
@@ -193,6 +153,10 @@ function iterate_crm_entities( $entity, $args = [] ) {
                     ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
                     : \AlexaCRM\Xrm\Query\OrderType::Descending()
                 );            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
+            foreach ( $params['filters'] as $attribute => $value ) {
+                $query->AddAttributeValue( $attribute, $value );
+            }
+
             $paging_info->Count = $params['count'];
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
