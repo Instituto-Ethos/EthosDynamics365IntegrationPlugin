@@ -123,8 +123,9 @@ add_action( 'approval_entity', 'hacklabr\approval_entity', 10 );
 function add_post_to_sync_waiting_list( $post_id ) {
     $_pmpro_group = get_post_meta( $post_id, '_pmpro_group', true );
     $get_entity_id = get_post_meta( $post_id, 'entity_lead', true );
+    $is_imported = get_post_meta( $post_id, '_ethos_from_crm', true );
 
-    if ( $_pmpro_group && ! $get_entity_id ) {
+    if ( $_pmpro_group && ! $get_entity_id && ! $is_imported ) {
         add_to_sync_waiting_list( $post_id );
     }
 
