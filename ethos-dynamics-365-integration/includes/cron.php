@@ -7,7 +7,7 @@ function schedule_sync_entity() {
 
     foreach ( $waiting_list as $post_id ) {
         if ( ! wp_next_scheduled( 'sync_entity', [$post_id] ) ) {
-            wp_schedule_single_event( time() + 30, 'sync_entity', [$post_id] );
+            wp_schedule_single_event( time() + ( 5 * MINUTE_IN_SECONDS ), 'sync_entity', [$post_id] );
         }
     }
 }
@@ -19,7 +19,7 @@ function schedule_approval_entity( $post_id ) {
 
     foreach ( $waiting_approval as $post_id ) {
         if ( ! wp_next_scheduled( 'approval_entity', [$post_id] ) ) {
-            wp_schedule_single_event( time() + 30, 'approval_entity', [$post_id] );
+            wp_schedule_single_event( time() + ( 5 * MINUTE_IN_SECONDS ), 'approval_entity', [$post_id] );
         }
     }
 }
