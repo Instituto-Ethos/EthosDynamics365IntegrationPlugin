@@ -90,7 +90,7 @@ function array_filter_args( $value ) {
 
 function get_crm_entities( $entity, $args = [] ) {
     $params = wp_parse_args($args, [
-        'count'   => 10,
+        'per_page'   => 100,
         'orderby' => 'createdon',
         'order'   => 'DESC',
         'filters' => [],
@@ -116,7 +116,7 @@ function get_crm_entities( $entity, $args = [] ) {
         }
 
         $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
-        $paging_info->Count = $params['count'];
+        $paging_info->Count = $params['per_page'];
         $paging_info->ReturnTotalRecordCount = true;
         $query->PageInfo = $paging_info;
 
@@ -138,7 +138,7 @@ function get_crm_entities( $entity, $args = [] ) {
 function iterate_crm_entities( $entity, $args = [] ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
         $params = wp_parse_args($args, [
-            'count' => 10,
+            'per_page' => 100,
             'max_pages' => PHP_INT_MAX,
             'orderby' => 'createdon',
             'order' => 'DESC',
@@ -157,7 +157,7 @@ function iterate_crm_entities( $entity, $args = [] ) {
                 $query->AddAttributeValue( $attribute, $value );
             }
 
-            $paging_info->Count = $params['count'];
+            $paging_info->Count = $params['per_page'];
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
 

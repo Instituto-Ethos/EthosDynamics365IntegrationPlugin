@@ -82,7 +82,7 @@ function create_event_on_wp( $entity ) {
 }
 
 function get_crm_projects_by_type( $name, $args = [] ) {
-    $get_all_tipodeprojeto = get_crm_entities( 'fut_tipodeprojeto', ['count' => 99] );
+    $get_all_tipodeprojeto = get_crm_entities( 'fut_tipodeprojeto', [ 'per_page' => 100 ] );
     $result = false;
 
     if ( $get_all_tipodeprojeto ) {
@@ -102,7 +102,7 @@ function get_crm_projects_by_type( $name, $args = [] ) {
 }
 
 function do_get_crm_events() {
-    $events = get_crm_projects_by_type( 'Evento', ['count' => 5] );
+    $events = get_crm_projects_by_type( 'Evento', [ 'per_page' => 5 ] );
 
     if ( $events ) {
         foreach( $events as $event ) {
