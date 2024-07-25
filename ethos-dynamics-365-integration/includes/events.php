@@ -47,8 +47,6 @@ function create_event_on_wp( $entity ) {
     $url        = $entity->Attributes['fut_st_website'] ?? '';
     $cost       = $entity->Attributes['fut_valorinscricao'] ?? '';
 
-    do_action( 'qm/debug', $entity->Attributes );
-
     $args = [
         'EventCost'               => format_currency_value( $cost ),
         'EventCurrencyCode'       => 'BRL',
@@ -75,6 +73,21 @@ function create_event_on_wp( $entity ) {
 
     if ( $result && ! is_wp_error( $result ) ) {
         update_post_meta( $result, 'entity_fut_projeto', $entity->Id );
+    }
+
+    $attributes = $entity->Attributes;
+
+    foreach ( $attributes as $key => $value ) {
+        $meta_key = '_ethos_crm:' . $key;
+        if ( is_array( $value ) || is_object( $value ) ) {
+            $meta_value = json_encode( $value );
+        } elseif ( ! empty( $value ) || is_numeric( $value ) ) {
+            $meta_value = $value;
+        }
+
+        if ( $meta_key && $meta_value ) {
+            update_post_meta( $result, $meta_key, $meta_value );
+        }
     }
 
     return $result;
@@ -111,4 +124,13 @@ function do_get_crm_events() {
             }
         }
     }
+}
+
+function get_crm_event_meta( $post_id ) {
+    $crm_meta = array_filter( get_post_meta( $post_id ), fn( $item ) => strpos( $item, '_ethos_crm:' ) === 0, ARRAY_FILTER_USE_KEY );
+    foreach ( $crm_meta as $key => $value ) {
+        $crm_meta[str_replace( '_ethos_crm:', '', $key )] = $value[0];
+        unset( $crm_meta[$key] );
+    }
+    return (object) $crm_meta;
 }

@@ -357,3 +357,75 @@ function get_client_on_dynamics() {
     return false;
 
 }
+
+function save_participant( $params ) {
+
+    $options = get_option( 'msdyncrm_options' );
+    $serverUrl = $options['serverUrl'] ?? '';
+
+    $contact_id = $params['contact_id'] ?? '';
+    $project_id = $params['project_id'] ?? '';
+
+    if ( empty( $contact_id ) || empty( $project_id ) ) {
+        return [
+            'status'  => 'error',
+            'message' => "um ou mais parâmetro obrigatório não foi informado."
+        ];
+    }
+
+    $entity_data = [
+        'fut_lk_contato' => new \AlexaCRM\Xrm\EntityReference( 'contact', $contact_id ),
+        'fut_lk_projeto' => new \AlexaCRM\Xrm\EntityReference( 'fut_projeto', $project_id )
+    ];
+
+    $entity = new \AlexaCRM\Xrm\Entity( 'fut_participante' );
+
+    foreach ( $entity_data as $key => $value ) {
+        $entity[$key] = $value;
+    }
+
+    try {
+
+        $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
+            $serverUrl,
+            $options['applicationId'],
+            $options['clientSecret']
+        );
+
+        $entityId = $client->Create( $entity );
+        return [
+            'status'    => 'success',
+            'message'   => 'Entidade criada com sucesso no CRM.',
+            'entity_id' => $entityId
+        ];
+
+    } catch ( \AlexaCRM\WebAPI\ODataException $e ) {
+
+        return [
+            'status'  => 'error',
+            'message' => "Ocorreu um erro ao criar a entidade no CRM : " . $e->getMessage()
+        ];
+
+    } catch ( \AlexaCRM\WebAPI\EntityNotSupportedException $e ) {
+
+        return [
+            'status'  => 'error',
+            'message' => "Entidade `{$entity->LogicalName}` não é suportada pelo CRM ."
+        ];
+
+    } catch ( \AlexaCRM\WebAPI\TransportException $e ) {
+
+        return [
+            'status'  => 'error',
+            'message' => "Erro de transporte ao comunicar com o CRM : " . $e->getMessage()
+        ];
+
+    } catch ( \Exception $e ) {
+
+        return [
+            'status'  => 'error',
+            'message' => "Erro inesperado : " . $e->getMessage()
+        ];
+
+    }
+}
