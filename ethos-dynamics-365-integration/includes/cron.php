@@ -26,4 +26,5 @@ function schedule_approval_entity( $post_id ) {
 
 add_action( 'init', 'hacklabr\schedule_approval_entity' );
 
+// @todo: revisar cron de coleta dos eventos do CRM
 add_action( 'hacklabr\\run_every_hour', 'hacklabr\\do_get_crm_events' );

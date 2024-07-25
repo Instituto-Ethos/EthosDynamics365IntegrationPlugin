@@ -361,6 +361,7 @@ function get_client_on_dynamics() {
 
 }
 
+// salva um participante em um evento no CRM
 function save_participant( $params ) {
 
     $options = get_option( 'msdyncrm_options' );
