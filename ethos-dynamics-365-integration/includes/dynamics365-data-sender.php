@@ -103,6 +103,9 @@ function approval_entity( $post_id ) {
                     $level_id = $group->group_parent_level_id;
                     $pmpro_approvals = \PMPro_Approvals::approveMember( $user_id, $level_id, true );
 
+                    // salva o id do contato do CRM no usuário do WP
+                    update_user_meta( $user_id, '_ethos_crm_contact_id', $parent_account_id->Id );
+
                     if ( ! $pmpro_approvals ) {
                         update_user_meta( $user_id, 'log_error', [
                             'message' => 'Erro ao aprovar usuário',
