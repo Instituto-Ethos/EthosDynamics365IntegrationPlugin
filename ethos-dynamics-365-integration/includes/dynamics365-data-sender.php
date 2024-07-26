@@ -114,7 +114,7 @@ function approval_entity( $post_id ) {
                     }
                 } else {
                     // salva o erro de log no user
-                    update_user_meta( $user_id, 'log_error', 'Erro no grupo' );
+                    update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
                 }
             }
         }
