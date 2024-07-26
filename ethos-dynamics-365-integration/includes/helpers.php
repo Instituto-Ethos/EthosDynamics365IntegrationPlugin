@@ -90,6 +90,7 @@ function array_filter_args( $value ) {
 
 function get_crm_entities( $entity, $args = [] ) {
     $params = wp_parse_args($args, [
+        'cache_for' => 6 * HOUR_IN_SECONDS,
         'per_page'   => 100,
         'orderby' => 'createdon',
         'order'   => 'DESC',
@@ -124,7 +125,7 @@ function get_crm_entities( $entity, $args = [] ) {
 
         if ( $client !== false ) {
             $result = $client->RetrieveMultiple( $query );
-            set_transient( $cache_key, $result, 2 * HOUR_IN_SECONDS );
+            set_transient( $cache_key, $result, $params['cache_for'] );
             return $result;
         }
 
@@ -152,11 +153,12 @@ function iterate_crm_entities( $entity, $args = [] ) {
                 $params['order'] === 'ASC'
                     ? \AlexaCRM\Xrm\Query\OrderType::Ascending()
                     : \AlexaCRM\Xrm\Query\OrderType::Descending()
-                );            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
+                );
             foreach ( $params['filters'] as $attribute => $value ) {
                 $query->AddAttributeValue( $attribute, $value );
             }
 
+            $paging_info = new \AlexaCRM\Xrm\Query\PagingInfo();
             $paging_info->Count = $params['per_page'];
             $paging_info->ReturnTotalRecordCount = true;
             $query->PageInfo = $paging_info;
@@ -189,13 +191,15 @@ function iterate_crm_entities( $entity, $args = [] ) {
     }
 }
 
-function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
+function get_crm_entity_by_id( string $entity_name, string $entity_id, $args = [] ) {
+    $params = wp_parse_args($args, [
+        'cache_for' => 6 * HOUR_IN_SECONDS,
+    ]);
 
     $client = get_client_on_dynamics();
 
     if ( $client !== false ) {
-        $cache_key = 'crm_entity_' .  $entity_name . '_' . $entity_id;
-        $cached_data = get_transient( $cache_key );
+        $cached_data = get_cached_crm_entity( $entity_name, $entity_id );
 
         if ( $cached_data !== false ) {
             return $cached_data;
@@ -206,14 +210,33 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id ) {
 
         try {
             $result = $client->Retrieve( $entity_name, $entity_id, $column_set );
-            set_transient( $cache_key, $result, 2 * HOUR_IN_SECONDS );
-            return $result;
+            return cache_crm_entity( $result, $params['cache_for'] );
         } catch ( \Exception $e ) {
             do_action( 'logger', $e->getMessage() );
         }
     }
 
     return false;
+}
+
+function cache_crm_entity( \AlexaCRM\Xrm\Entity $entity, int $cache_for ) {
+    if ( ! empty( $entity->Id ) ) {
+        $cache_key = 'crm_entity_' . ( $entity->LogicalName ?? '' ) . '_' . $entity->Id;
+        set_transient( $cache_key, $entity, $cache_for );
+    }
+    return $entity;
+}
+
+function get_cached_crm_entity( string $entity_name, string $entity_id ) {
+    $cache_key = 'crm_entity_' .  $entity_name . '_' . $entity_id;
+    $entity = get_transient( $cache_key );
+
+    if ( empty( $entity ) ) {
+        return null;
+    } else {
+        assert( $entity instanceof \AlexaCRM\Xrm\Entity );
+        return $entity;
+    }
 }
 
 function get_crm_server_url() {
