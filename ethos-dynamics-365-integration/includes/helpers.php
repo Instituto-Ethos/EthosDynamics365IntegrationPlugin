@@ -219,7 +219,7 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, $args = [
     return false;
 }
 
-function cache_crm_entity( \AlexaCRM\Xrm\Entity $entity, int $cache_for ) {
+function cache_crm_entity( \AlexaCRM\Xrm\Entity $entity, int $cache_for = 6 * HOUR_IN_SECONDS ) {
     if ( ! empty( $entity->Id ) ) {
         $cache_key = 'crm_entity_' . ( $entity->LogicalName ?? '' ) . '_' . $entity->Id;
         set_transient( $cache_key, $entity, $cache_for );
