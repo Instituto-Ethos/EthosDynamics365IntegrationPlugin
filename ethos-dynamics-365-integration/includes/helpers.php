@@ -201,7 +201,7 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, $args = [
     if ( $client !== false ) {
         $cached_data = get_cached_crm_entity( $entity_name, $entity_id );
 
-        if ( $cached_data !== false ) {
+        if ( ! empty( $cached_data ) ) {
             return $cached_data;
         }
 
