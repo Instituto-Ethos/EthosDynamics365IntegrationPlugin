@@ -67,14 +67,19 @@ function get_entity_attibutes( $entity ) {
 
     $metadata_registry = new \AlexaCRM\WebAPI\MetadataRegistry( $client );
 
-    $eol = class_exists( '\WP_CLI' ) ? "\n" : '<br/>';
-
     try {
         $entity_metadata = $metadata_registry->getDefinition( $entity );
 
         if ( $entity_metadata !== null && isset( $entity_metadata->Attributes ) ) {
             foreach ( $entity_metadata->Attributes as $attribute ) {
-                echo "Atributo: " . $attribute->LogicalName . " - Tipo: " . $attribute->AttributeTypeName->Value . $eol;
+                echo $attribute->LogicalName . "\n";
+                echo "\tType: " . $attribute->AttributeTypeName->Value . "\n";
+
+                if ( ! empty( $attribute->Targets ) ) {
+                    echo "\tTargets: " . implode( ' | ', $attribute->Targets ) . "\n";
+                }
+
+                echo "\tRequired Level: " . $attribute->RequiredLevel->Value . "\n";
             }
         } else {
             echo "Não foi possível obter os metadados da entidade.\n";
