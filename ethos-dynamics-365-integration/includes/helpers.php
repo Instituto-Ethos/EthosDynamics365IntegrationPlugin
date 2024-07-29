@@ -79,6 +79,14 @@ function get_entity_attibutes( $entity ) {
                     echo "\tTargets: " . implode( ' | ', $attribute->Targets ) . "\n";
                 }
 
+                if ( $attribute->AttributeTypeName->Value === 'PicklistType' ) {
+                    echo "\tOptions:\n";
+
+                    foreach ( $attribute->OptionSet->Options as $option ) {
+                        echo "\t\t" . $option->Label->UserLocalizedLabel->Label . ' :: ' . $option->Value . "\n";
+                    }
+                }
+
                 echo "\tRequired Level: " . $attribute->RequiredLevel->Value . "\n";
             }
         } else {
