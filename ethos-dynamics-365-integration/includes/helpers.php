@@ -62,7 +62,7 @@ function column_set_all() {
     return $column_set;
 }
 
-function get_entity_attibutes( $entity ) {
+function get_entity_attibutes( string $entity ) {
     $client = get_client_on_dynamics();
 
     $metadata_registry = new \AlexaCRM\WebAPI\MetadataRegistry( $client );
@@ -97,11 +97,33 @@ function get_entity_attibutes( $entity ) {
     }
 }
 
+function get_entity_options( string $entity, string $attribute ) {
+    $client = get_client_on_dynamics();
+
+    $metadata_registry = new \AlexaCRM\WebAPI\MetadataRegistry( $client );
+
+    $entity_metadata = $metadata_registry->getDefinition( $entity );
+
+    foreach ( $entity_metadata->Attributes as $attr ) {
+        if ( $attr->LogicalName === $attribute ) {
+            $options = [];
+
+            foreach ( $attr->OptionSet->Options as $option ) {
+                $options[ $option->Value ] = $option->Label->UserLocalizedLabel->Label ?? $option->Value;
+            }
+
+            return $options;
+        }
+    }
+
+    return [];
+}
+
 function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
-function get_crm_entities( $entity, $args = [] ) {
+function get_crm_entities( string $entity, array $args = [] ) {
     $params = wp_parse_args($args, [
         'cache_for' => 6 * HOUR_IN_SECONDS,
         'per_page'   => 100,
@@ -149,7 +171,7 @@ function get_crm_entities( $entity, $args = [] ) {
     return false;
 }
 
-function iterate_crm_entities( $entity, $args = [] ) {
+function iterate_crm_entities( string $entity, array $args = [] ) {
     if ( class_exists( '\AlexaCRM\Xrm\Query\QueryByAttribute' ) ) {
         $params = wp_parse_args($args, [
             'per_page' => 100,
@@ -204,7 +226,7 @@ function iterate_crm_entities( $entity, $args = [] ) {
     }
 }
 
-function get_crm_entity_by_id( string $entity_name, string $entity_id, $args = [] ) {
+function get_crm_entity_by_id( string $entity_name, string $entity_id, array $args = [] ) {
     $params = wp_parse_args($args, [
         'cache_for' => 6 * HOUR_IN_SECONDS,
     ]);
