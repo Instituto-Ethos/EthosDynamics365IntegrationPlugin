@@ -73,6 +73,11 @@ function get_entity_attibutes( string $entity ) {
         if ( $entity_metadata !== null && isset( $entity_metadata->Attributes ) ) {
             foreach ( $entity_metadata->Attributes as $attribute ) {
                 echo $attribute->LogicalName . "\n";
+
+                if ( ! empty( $attribute->Description->UserLocalizedLabel ) ) {
+                    echo "\tDescription: " . $attribute->Description->UserLocalizedLabel->Label . "\n";
+                }
+
                 echo "\tType: " . $attribute->AttributeTypeName->Value . "\n";
 
                 if ( ! empty( $attribute->Targets ) ) {
