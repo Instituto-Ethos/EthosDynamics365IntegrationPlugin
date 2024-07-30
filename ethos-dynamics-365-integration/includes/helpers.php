@@ -84,15 +84,15 @@ function get_entity_attibutes( string $entity ) {
                     echo "\tTargets: " . implode( ' | ', $attribute->Targets ) . "\n";
                 }
 
+                echo "\tRequired Level: " . $attribute->RequiredLevel->Value . "\n";
+
                 if ( $attribute->AttributeTypeName->Value === 'PicklistType' ) {
                     echo "\tOptions:\n";
 
                     foreach ( $attribute->OptionSet->Options as $option ) {
-                        echo "\t\t" . $option->Label->UserLocalizedLabel->Label . ' :: ' . $option->Value . "\n";
+                        echo "\t\t" . $option->Value . ' → ' . $option->Label->UserLocalizedLabel->Label . "\n";
                     }
                 }
-
-                echo "\tRequired Level: " . $attribute->RequiredLevel->Value . "\n";
             }
         } else {
             echo "Não foi possível obter os metadados da entidade.\n";
