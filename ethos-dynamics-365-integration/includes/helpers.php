@@ -128,6 +128,22 @@ function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
+function create_crm_entity ( string $entity_name, array $attributes = [] ) {
+    $entity = new \AlexaCRM\Xrm\Entity( $entity_name );
+
+    $filtered_attributes = array_filter( $attributes, 'hacklabr\\array_filter_args' );
+
+    foreach ( $filtered_attributes as $key => $value ) {
+        $entity[$key] = $value;
+    }
+
+    $client = get_client_on_dynamics();
+
+    $entity_id = $client->Create( $entity );
+
+    return $entity_id;
+}
+
 function create_crm_reference ( string $entity_name, string $entity_id ) {
     return new \AlexaCRM\Xrm\EntityReference( $entity_name, $entity_id );
 }

@@ -149,67 +149,46 @@ function send_account_to_crm( $post_id ) {
     $cnpj = $post_meta['cnpj'][0] ?? '';
 
     if ( $name && $cnpj ) {
-        $entity                = new \AlexaCRM\Xrm\Entity( 'lead' );
-        $entity['name']        = $name;
-        $entity['fut_st_cnpj'] = $cnpj;
+        $attributes = [
+            'name'        => $name,
+            'fut_st_cnpj' => $cnpj,
+        ];
 
         if ( isset( $post_meta['razao_social'][0] ) ) {
-            $entity['fut_st_razaosocial'] = $post_meta['fut_st_razaosocial'][0];
+            $attributes['fut_st_razaosocial'] = $post_meta['fut_st_razaosocial'][0];
         }
 
         if ( isset( $post_meta['inscricao_estadual'][0] ) ) {
-            $entity['fut_st_inscricaoestadual'] = $post_meta['inscricao_estadual'][0];
+            $attributes['fut_st_inscricaoestadual'] = $post_meta['inscricao_estadual'][0];
         }
 
         if ( isset( $post_meta['inscricao_municipal'][0] ) ) {
-            $entity['fut_st_inscricaomunicipal'] = $post_meta['inscricao_municipal'][0];
+            $attributes['fut_st_inscricaomunicipal'] = $post_meta['inscricao_municipal'][0];
         }
 
         if ( isset( $post_meta['website'][0] ) ) {
-            $entity['websiteurl'] = $post_meta['website'][0];
+            $attributes['websiteurl'] = $post_meta['website'][0];
         }
 
         if ( isset( $post_meta['segmento'][0] ) ) {
-            $entity['fut_lk_setor'] = $post_meta['segmento'][0];
+            $attributes['fut_lk_setor'] = $post_meta['segmento'][0];
         }
 
         try {
 
-            $client = get_client_on_dynamics();
+            $entity_id = create_crm_entity( 'lead', $attributes );
 
-            $entityId = $client->Create( $entity );
             return [
                 'status'    => 'success',
                 'message'   => 'Entidade criada com sucesso no CRM.',
-                'entity_id' => $entityId
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\ODataException $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Ocorreu um erro ao criar a entidade no CRM (Post ID $post_id): " . $e->getMessage()
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\EntityNotSupportedException $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Entidade `{$entity->LogicalName}` não é suportada pelo CRM (Post ID $post_id)."
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\TransportException $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Erro de transporte ao comunicar com o CRM (Post ID $post_id): " . $e->getMessage()
+                'entity_id' => $entity_id,
             ];
 
         } catch ( \Exception $e ) {
 
             return [
                 'status'  => 'error',
-                'message' => "Erro inesperado (Post ID $post_id): " . $e->getMessage()
+                'message' => "Erro ao enviar conta (Post ID $post_id): " . $e->getMessage()
             ];
 
         }
@@ -241,7 +220,7 @@ function send_lead_to_crm( $post_id ) {
 
         $systemuser = get_option( 'systemuser' );
 
-        $entity_data = [
+        $attributes = [
             'ownerid'                    => create_crm_reference( 'systemuser', $systemuser ),
             'address1_city'              => $post_meta['end_cidade'][0] ?? '',
             'address1_postalcode'        => $post_meta['end_cep'][0] ?? '',
@@ -267,53 +246,21 @@ function send_lead_to_crm( $post_id ) {
             'yomilastname'               => $lastname
         ];
 
-        $filtered_data = array_filter( $entity_data, 'hacklabr\\array_filter_args' );
-
-        $entity = new \AlexaCRM\Xrm\Entity('lead');
-
-        foreach ( $filtered_data as $key => $value ) {
-            $entity[$key] = $value;
-        }
-
         try {
 
-            $client = get_client_on_dynamics();
+            $entity_id = create_crm_entity( 'lead', $attributes );
 
-            $entityId = $client->Create( $entity );
             return [
                 'status'    => 'success',
                 'message'   => 'Entidade criada com sucesso no CRM.',
-                'entity_id' => $entityId
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\ODataException $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Ocorreu um erro ao criar a entidade no CRM (Post ID $post_id): " . $e->getMessage()
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\EntityNotSupportedException $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Entidade `{$entity->LogicalName}` não é suportada pelo CRM (Post ID $post_id)."
-            ];
-
-        } catch ( \AlexaCRM\WebAPI\TransportException $e ) {
-
-            update_post_meta( $post_id, 'error_data', $entity );
-
-            return [
-                'status'  => 'error',
-                'message' => "Erro de transporte ao comunicar com o CRM (Post ID $post_id): " . $e->getMessage()
+                'entity_id' => $entity_id,
             ];
 
         } catch ( \Exception $e ) {
 
             return [
                 'status'  => 'error',
-                'message' => "Erro inesperado (Post ID $post_id): " . $e->getMessage()
+                'message' => "Erro ao criar lead (Post ID $post_id): " . $e->getMessage()
             ];
 
         }
@@ -359,54 +306,26 @@ function save_participant( $params ) {
         ];
     }
 
-    $entity_data = [
+    $attributes = [
         'fut_lk_contato' => create_crm_reference( 'contact', $contact_id ),
         'fut_lk_projeto' => create_crm_reference( 'fut_projeto', $project_id )
     ];
 
-    $entity = new \AlexaCRM\Xrm\Entity( 'fut_participante' );
-
-    foreach ( $entity_data as $key => $value ) {
-        $entity[$key] = $value;
-    }
-
     try {
 
-        $client = get_client_on_dynamics();
+        $entity_id = create_crm_entity( 'fut_participante', $attributes );
 
-        $entityId = $client->Create( $entity );
         return [
             'status'    => 'success',
             'message'   => 'Entidade criada com sucesso no CRM.',
-            'entity_id' => $entityId
-        ];
-
-    } catch ( \AlexaCRM\WebAPI\ODataException $e ) {
-
-        return [
-            'status'  => 'error',
-            'message' => "Ocorreu um erro ao criar a entidade no CRM : " . $e->getMessage()
-        ];
-
-    } catch ( \AlexaCRM\WebAPI\EntityNotSupportedException $e ) {
-
-        return [
-            'status'  => 'error',
-            'message' => "Entidade `{$entity->LogicalName}` não é suportada pelo CRM ."
-        ];
-
-    } catch ( \AlexaCRM\WebAPI\TransportException $e ) {
-
-        return [
-            'status'  => 'error',
-            'message' => "Erro de transporte ao comunicar com o CRM : " . $e->getMessage()
+            'entity_id' => $entity_id,
         ];
 
     } catch ( \Exception $e ) {
 
         return [
             'status'  => 'error',
-            'message' => "Erro inesperado : " . $e->getMessage()
+            'message' => "Erro ao salvar participante: " . $e->getMessage()
         ];
 
     }
