@@ -142,9 +142,6 @@ function cancel_sync( $post_id ) {
 }
 
 function send_account_to_crm( $post_id ) {
-    $options = get_option( 'msdyncrm_options' );
-    $serverUrl = $options['serverUrl'] ?? '';
-
     $post_meta = get_post_meta( $post_id );
 
     // Required fields
@@ -178,11 +175,7 @@ function send_account_to_crm( $post_id ) {
 
         try {
 
-            $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
-                $serverUrl,
-                $options['applicationId'],
-                $options['clientSecret']
-            );
+            $client = get_client_on_dynamics();
 
             $entityId = $client->Create( $entity );
             return [
@@ -230,9 +223,6 @@ function send_account_to_crm( $post_id ) {
 }
 
 function send_lead_to_crm( $post_id ) {
-    $options = get_option( 'msdyncrm_options' );
-    $serverUrl = $options['serverUrl'] ?? '';
-
     $author_id = get_post_field( 'post_author', $post_id );
     $author_name = get_the_author_meta( 'display_name', $author_id );
 
@@ -287,11 +277,7 @@ function send_lead_to_crm( $post_id ) {
 
         try {
 
-            $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
-                $serverUrl,
-                $options['applicationId'],
-                $options['clientSecret']
-            );
+            $client = get_client_on_dynamics();
 
             $entityId = $client->Create( $entity );
             return [
@@ -363,10 +349,6 @@ function get_client_on_dynamics() {
 
 // salva um participante em um evento no CRM
 function save_participant( $params ) {
-
-    $options = get_option( 'msdyncrm_options' );
-    $serverUrl = $options['serverUrl'] ?? '';
-
     $contact_id = $params['contact_id'] ?? '';
     $project_id = $params['project_id'] ?? '';
 
@@ -390,11 +372,7 @@ function save_participant( $params ) {
 
     try {
 
-        $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
-            $serverUrl,
-            $options['applicationId'],
-            $options['clientSecret']
-        );
+        $client = get_client_on_dynamics();
 
         $entityId = $client->Create( $entity );
         return [
