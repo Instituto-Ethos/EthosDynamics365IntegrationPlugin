@@ -242,7 +242,7 @@ function send_lead_to_crm( $post_id ) {
         $systemuser = get_option( 'systemuser' );
 
         $entity_data = [
-            'ownerid'                    => new \AlexaCRM\Xrm\EntityReference( 'systemuser', $systemuser ),
+            'ownerid'                    => create_crm_reference( 'systemuser', $systemuser ),
             'address1_city'              => $post_meta['end_cidade'][0] ?? '',
             'address1_postalcode'        => $post_meta['end_cep'][0] ?? '',
             'companyname'                => $name,
@@ -360,8 +360,8 @@ function save_participant( $params ) {
     }
 
     $entity_data = [
-        'fut_lk_contato' => new \AlexaCRM\Xrm\EntityReference( 'contact', $contact_id ),
-        'fut_lk_projeto' => new \AlexaCRM\Xrm\EntityReference( 'fut_projeto', $project_id )
+        'fut_lk_contato' => create_crm_reference( 'contact', $contact_id ),
+        'fut_lk_projeto' => create_crm_reference( 'fut_projeto', $project_id )
     ];
 
     $entity = new \AlexaCRM\Xrm\Entity( 'fut_participante' );

@@ -128,6 +128,10 @@ function array_filter_args( $value ) {
     return !( $value === '' || $value === false );
 }
 
+function create_crm_reference ( string $entity_name, string $entity_id ) {
+    return new \AlexaCRM\Xrm\EntityReference( $entity_name, $entity_id );
+}
+
 function get_crm_entities( string $entity, array $args = [] ) {
     $params = wp_parse_args($args, [
         'cache_for' => 6 * HOUR_IN_SECONDS,
