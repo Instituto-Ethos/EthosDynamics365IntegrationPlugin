@@ -148,6 +148,20 @@ function create_crm_reference ( string $entity_name, string $entity_id ) {
     return new \AlexaCRM\Xrm\EntityReference( $entity_name, $entity_id );
 }
 
+function update_crm_entity ( string $entity_name, string $entity_id, array $attributes = [] ) {
+    $entity = new \AlexaCRM\Xrm\Entity( $entity_name, $entity_id );
+
+    $filtered_attributes = array_filter( $attributes, 'hacklabr\\array_filter_args' );
+
+    foreach ( $filtered_attributes as $key => $value ) {
+        $entity[$key] = $value;
+    }
+
+    $client = get_client_on_dynamics();
+
+    return $client->Update( $entity );
+}
+
 function get_crm_entities( string $entity, array $args = [] ) {
     $params = wp_parse_args($args, [
         'cache_for' => 6 * HOUR_IN_SECONDS,
