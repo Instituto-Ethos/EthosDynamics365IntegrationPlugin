@@ -128,6 +128,7 @@ function do_get_crm_events() {
 
 function get_crm_event_meta( $post_id ) {
     $crm_meta = array_filter( get_post_meta( $post_id ), fn( $item ) => strpos( $item, '_ethos_crm:' ) === 0, ARRAY_FILTER_USE_KEY );
+    \var_dump($crm_meta);
     foreach ( $crm_meta as $key => $value ) {
         $crm_meta[str_replace( '_ethos_crm:', '', $key )] = $value[0];
         unset( $crm_meta[$key] );

@@ -286,3 +286,45 @@ function format_currency_value( $value ) {
 
     return $value;
 }
+
+/**
+ * @param string $state_name name of Brazil state, ex: "PR", "SP" or "BA
+ * @param string $return_field fields to return, options as 'id', 'regiao' and 'regiaoId'
+ * @return int id of state in CRM
+ */
+function get_state_info( string $state_name, $return_field = 'id' ) {
+    $list_states_codes = [
+        "AC"=> ['id' => 7,'regiao' => "NO", 'regiaoId' => 1],
+        "AL"=> ['id' => 15,'regiao' => "NE", 'regiaoId' => 2],
+        "AM"=> ['id' => 1,'regiao' => "NO", 'regiaoId' => 1],
+        "AP"=> ['id' => 3,'regiao' => "NO", 'regiaoId' => 1],
+        "BA"=> ['id' => 16,'regiao' => "NE", 'regiaoId' => 2],
+        "CE"=> ['id' => 10,'regiao' => "NE", 'regiaoId' => 2],
+        "DF"=> ['id' => 20,'regiao' => "CO", 'regiaoId' => 3],
+        "ES"=> ['id' => 23,'regiao' => "SE", 'regiaoId' => 4],
+        "GO"=> ['id' => 19,'regiao' => "CO", 'regiaoId' => 3],
+        "MA"=> ['id' => 8,'regiao' => "NE", 'regiaoId' => 2],
+        "MG"=> ['id' => 24,'regiao' => "SE", 'regiaoId' => 4],
+        "MS"=> ['id' => 18,'regiao' => "CO", 'regiaoId' => 3],
+        "MT"=> ['id' => 17,'regiao' => "CO", 'regiaoId' => 3],
+        "PA"=> ['id' => 4,'regiao' => "NO", 'regiaoId' => 1],
+        "PB"=> ['id' => 13,'regiao' => "NE", 'regiaoId' => 2],
+        "PE"=> ['id' => 12,'regiao' => "NE", 'regiaoId' => 2],
+        "PI"=> ['id' => 9,'regiao' => "NE", 'regiaoId' => 2],
+        "PR"=> ['id' => 25,'regiao' => "SU", 'regiaoId' => 5],
+        "RJ"=> ['id' => 22,'regiao' => "SE", 'regiaoId' => 4],
+        "RN"=> ['id' => 11,'regiao' => "NE", 'regiaoId' => 2],
+        "RO"=> ['id' => 6,'regiao' => "NO", 'regiaoId' => 1],
+        "RR"=> ['id' => 2,'regiao' => "NO", 'regiaoId' => 1],
+        "RS"=> ['id' => 26,'regiao' => "SU", 'regiaoId' => 5],
+        "SC"=> ['id' => 27,'regiao' => "SU", 'regiaoId' => 5],
+        "SE"=> ['id' => 14,'regiao' => "NE", 'regiaoId' => 2],
+        "SP"=> ['id' => 21,'regiao' => "SE", 'regiaoId' => 4],
+        "TO"=> ['id' => 5,'regiao' => "NO", 'regiaoId' => 1 ]
+    ];
+    $ret = -1;
+    if(\array_key_exists(trim($state_name), $list_states_codes)) {
+        $ret = $list_states_codes[$state_name][$return_field];
+    }
+    return $ret;
+}
