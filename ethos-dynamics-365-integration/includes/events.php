@@ -114,12 +114,15 @@ function get_crm_projects_by_type( $name, $args = [] ) {
     return $result;
 }
 
-function do_get_crm_events() {
-    $events = get_crm_projects_by_type( 'Evento', [ 'per_page' => 5 ] );
-
+function do_get_crm_events($num_events = 5) {
+    $events = get_crm_projects_by_type( 'Evento', [ 'per_page' => $num_events ] );
     if ( $events ) {
+        $num = count($events);
+        $count = 0;
         foreach( $events as $event ) {
+            $count++;
             if ( ! event_exists_on_wp( $event->Id ) ) {
+                error_log("($count / $num) criando evento {$event->Id}");
                 create_event_on_wp( $event );
             }
         }
