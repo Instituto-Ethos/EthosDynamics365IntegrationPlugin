@@ -178,6 +178,8 @@ function send_account_to_crm( $post_id ) {
 
             $entity_id = create_crm_entity( 'lead', $attributes );
 
+            update_post_meta( $post_id, '_ethos_crm_lead_id', $entity_id );
+
             return [
                 'status'    => 'success',
                 'message'   => 'Entidade criada com sucesso no CRM.',
@@ -249,6 +251,8 @@ function send_lead_to_crm( $post_id ) {
         try {
 
             $entity_id = create_crm_entity( 'lead', $attributes );
+
+            update_post_meta( $post_id, '_ethos_crm_lead_id', $entity_id );
 
             return [
                 'status'    => 'success',
