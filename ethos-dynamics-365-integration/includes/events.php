@@ -105,8 +105,13 @@ function get_crm_projects_by_type( $name, $args = [] ) {
                     $args['filters'] = [];
                 }
                 $args['filters']['fut_lk_tipoparceria'] = $tipoparceria->Id;
-                $result = get_crm_entities( 'fut_projeto', $args );
-                $result = $result->Entities;
+                $entities_collection = get_crm_entities( 'fut_projeto', $args );
+                $entities = (array) $entities_collection->Entities;
+                if(false !== $result) {
+                    $result = array_merge($result, $entities);
+                } else {
+                    $result = $entities;
+                }
             }
         }
     }
