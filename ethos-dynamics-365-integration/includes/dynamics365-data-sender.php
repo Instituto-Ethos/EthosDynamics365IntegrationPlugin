@@ -49,12 +49,14 @@ function sync_entity( $post_id ) {
 
     if ( ( array_search( $post_id, $waiting_list ) ) !== false ) {
         // sync here
-        $send_account_to_crm = send_lead_to_crm( $post_id );
+        $lead_response = send_lead_to_crm( $post_id );
 
-        if ( $send_account_to_crm['status'] === 'success' ) {
+        if ( $lead_response['status'] === 'success' ) {
+            $lead_id = $lead_response['entity_id'];
+
             // salva o relacionamento da entidade no post
-            update_post_meta( $post_id, 'entity_lead', $send_account_to_crm['entity_id'] );
-            update_post_meta( $post_id, '_ethos_crm_lead_id', $send_account_to_crm['entity_id'] );
+            update_post_meta( $post_id, 'entity_lead', $lead_id );
+            update_post_meta( $post_id, '_ethos_crm_lead_id', $lead_id );
 
             // apaga o erro de log do post
             \delete_post_meta( $post_id, 'log_error' );
@@ -66,10 +68,10 @@ function sync_entity( $post_id ) {
             add_to_approval_waiting( $post_id );
         } else {
             // salva o erro de log no data_logger
-            do_action( 'logger', $send_account_to_crm['message'] );
+            do_action( 'logger', $lead_response['message'] );
 
             // salva o erro de log no post
-            update_meta_log_error( $post_id, $send_account_to_crm['message'] );
+            update_meta_log_error( $post_id, $lead_response['message'] );
         }
     }
 }
