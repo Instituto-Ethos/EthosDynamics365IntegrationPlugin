@@ -41,6 +41,11 @@ function create_event_on_wp( $entity ) {
         return false;
     }
 
+    if(intval($entity->Attributes['statuscode'] ?? 0) == 2) {
+        do_action( 'logger', "O evento está inativo. Entity ID: $entity->Id" );
+        return false;
+    }
+
     $start_date = format_iso8601_to_events( $entity->Attributes['fut_dt_realizacao'] );
     $end_date   = format_iso8601_to_events( $entity->Attributes['fut_dt_dataehoratermino'] );
     $title      = $entity->Attributes['fut_name'] ?? '';
