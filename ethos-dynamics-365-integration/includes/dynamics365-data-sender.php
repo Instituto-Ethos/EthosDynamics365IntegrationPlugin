@@ -53,7 +53,7 @@ function sync_entity( $post_id ) {
 
         if ( $send_account_to_crm['status'] === 'success' ) {
             // salva o relacionamento da entidade no post
-            update_entity_on_postmeta( $post_id, 'lead', $send_account_to_crm['entity_id'] );
+            update_post_meta( $post_id, 'entity_lead', $send_account_to_crm['entity_id'] );
             update_post_meta( $post_id, '_ethos_crm_lead_id', $send_account_to_crm['entity_id'] );
 
             // apaga o erro de log do post
@@ -88,7 +88,7 @@ function approval_entity( $post_id ) {
 
             if ( $parent_account_id->Id ) {
                 // salva o relacionamento da entidade no post
-                update_entity_on_postmeta( $post_id, $parent_account_id->LogicalName, $parent_account_id->Id );
+                update_post_meta( $post_id, 'entity_' . $parent_account_id->LogicalName, $parent_account_id->Id );
 
                 // apaga o erro de log do post
                 \delete_post_meta( $post_id, 'log_error' );

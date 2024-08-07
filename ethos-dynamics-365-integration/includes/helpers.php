@@ -37,23 +37,6 @@ function update_meta_log_error( $post_id, $error ) {
     update_post_meta( $post_id, 'log_error', $error );
 }
 
-/**
- * Updates the 'entity_{$LogicalName}' post meta for the given post ID.
- *
- * @param int $post_id The ID of the post to update.
- * @param string $entity_name The logical name by the entity.
- * @param string $entity_id The ID value by the entity.
- */
-function update_entity_on_postmeta( $post_id, $entity_name, $entity_id ) {
-
-    if ( strpos( $entity_name, 'entity_' ) === 0 ) {
-        update_post_meta( $post_id, $entity_name, $entity_id );
-    } else {
-        update_post_meta( $post_id, 'entity_' . $entity_name, $entity_id );
-    }
-
-}
-
 function column_set_all() {
     if ( ! class_exists( '\AlexaCRM\Xrm\ColumnSet' ) ) {
         return false;
