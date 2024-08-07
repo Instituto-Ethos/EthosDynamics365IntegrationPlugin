@@ -97,10 +97,13 @@ function create_event_on_wp( $entity ) {
 function get_crm_projects_by_type( $name, $args = [] ) {
     $get_all_tipodeprojeto = get_crm_entities( 'fut_tipodeprojeto', [ 'per_page' => 100 ] );
     $result = false;
+    if(\is_string($name)) {
+        $name = [$name];
+    }
 
     if ( $get_all_tipodeprojeto ) {
         foreach ( $get_all_tipodeprojeto as $tipoparceria ) {
-            if ( $tipoparceria->Attributes['fut_name'] == $name ) {
+            if ( false !== \array_search($tipoparceria->Attributes['fut_name'], $name) ) {
                 if ( empty( $args['filters'] ) ) {
                     $args['filters'] = [];
                 }
@@ -120,7 +123,7 @@ function get_crm_projects_by_type( $name, $args = [] ) {
 }
 
 function do_get_crm_events($num_events = 5) {
-    $events = get_crm_projects_by_type( 'Evento', [ 'per_page' => $num_events ] );
+    $events = get_crm_projects_by_type( ['Evento', 'Conferência'], [ 'per_page' => $num_events ] );
     if ( $events ) {
         $num = count($events);
         $count = 0;
