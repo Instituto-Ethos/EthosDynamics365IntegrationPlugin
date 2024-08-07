@@ -2,6 +2,9 @@
 
 namespace hacklabr;
 
+use \AlexaCRM\Xrm\Entity;
+use \AlexaCRM\Xrm\EntityReference;
+
 /**
  * Retrieves a list of posts based on a given meta key and value.
  *
@@ -129,7 +132,7 @@ function array_filter_args( $value ) {
 }
 
 function create_crm_entity ( string $entity_name, array $attributes = [] ) {
-    $entity = new \AlexaCRM\Xrm\Entity( $entity_name );
+    $entity = new Entity( $entity_name );
 
     $filtered_attributes = array_filter( $attributes, 'hacklabr\\array_filter_args' );
 
@@ -145,11 +148,11 @@ function create_crm_entity ( string $entity_name, array $attributes = [] ) {
 }
 
 function create_crm_reference ( string $entity_name, string $entity_id ) {
-    return new \AlexaCRM\Xrm\EntityReference( $entity_name, $entity_id );
+    return new EntityReference( $entity_name, $entity_id );
 }
 
 function update_crm_entity ( string $entity_name, string $entity_id, array $attributes = [] ) {
-    $entity = new \AlexaCRM\Xrm\Entity( $entity_name, $entity_id );
+    $entity = new Entity( $entity_name, $entity_id );
 
     $filtered_attributes = array_filter( $attributes, 'hacklabr\\array_filter_args' );
 
@@ -293,8 +296,8 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, array $ar
     return false;
 }
 
-function cache_crm_entity( \AlexaCRM\Xrm\Entity $entity, int $cache_for = 6 * HOUR_IN_SECONDS ) {
-    if ( ! empty( $entity->Id ) ) {
+function cache_crm_entity( Entity|null $entity, int $cache_for = 6 * HOUR_IN_SECONDS ) {
+    if ( ! empty( $entity ) ) {
         $cache_key = 'crm_entity_' . ( $entity->LogicalName ?? '' ) . '_' . $entity->Id;
         set_transient( $cache_key, $entity, $cache_for );
     }
@@ -308,7 +311,7 @@ function get_cached_crm_entity( string $entity_name, string $entity_id ) {
     if ( empty( $entity ) ) {
         return null;
     } else {
-        assert( $entity instanceof \AlexaCRM\Xrm\Entity );
+        assert( $entity instanceof Entity );
         return $entity;
     }
 }

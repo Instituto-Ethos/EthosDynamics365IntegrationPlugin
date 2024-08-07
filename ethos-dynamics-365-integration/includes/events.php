@@ -110,8 +110,13 @@ function get_crm_projects_by_type( $name, $args = [] ) {
                     $args['filters'] = [];
                 }
                 $args['filters']['fut_lk_tipoparceria'] = $tipoparceria->Id;
-                $result = get_crm_entities( 'fut_projeto', $args );
-                $result = $result->Entities;
+                $entities_collection = get_crm_entities( 'fut_projeto', $args );
+                $entities = (array) $entities_collection->Entities;
+                if(false !== $result) {
+                    $result = array_merge($result, $entities);
+                } else {
+                    $result = $entities;
+                }
             }
         }
     }
@@ -121,11 +126,13 @@ function get_crm_projects_by_type( $name, $args = [] ) {
 
 function do_get_crm_events($num_events = 5) {
     $events = get_crm_projects_by_type( 'Evento', [ 'per_page' => $num_events ] );
-
     if ( $events ) {
+        $num = count($events);
+        $count = 0;
         foreach( $events as $event ) {
+            $count++;
             if ( ! event_exists_on_wp( $event->Id ) ) {
-                error_log("criando evento {$event->Id}");
+                error_log("($count / $num) criando evento {$event->Id}");
                 create_event_on_wp( $event );
             }
         }
