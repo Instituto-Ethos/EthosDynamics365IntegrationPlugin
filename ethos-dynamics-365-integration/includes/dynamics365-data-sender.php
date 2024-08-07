@@ -80,15 +80,15 @@ function approval_entity( $post_id ) {
     $waiting_approval = get_option( '_ethos_waiting_approval', [] );
 
     if ( ( array_search( $post_id, $waiting_approval ) ) !== false ) {
-        $get_entity_id = get_post_meta( $post_id, 'entity_lead', true );
-        $get_crm_data_by_id = get_crm_entity_by_id( 'lead', $get_entity_id );
+        $lead_id = get_post_meta( $post_id, 'entity_lead', true );
+        $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
-        if ( $get_crm_data_by_id && $get_crm_data_by_id->GetAttributeValue( 'parentaccountid' ) ) {
-            $parent_account_id = $get_crm_data_by_id->GetAttributeValue( 'parentaccountid' );
+        if ( $lead && $lead->GetAttributeValue( 'parentaccountid' ) ) {
+            $parent_account_ref = $lead->GetAttributeValue( 'parentaccountid' );
 
-            if ( $parent_account_id->Id ) {
+            if ( $parent_account_ref->Id ) {
                 // salva o relacionamento da entidade no post
-                update_post_meta( $post_id, 'entity_' . $parent_account_id->LogicalName, $parent_account_id->Id );
+                update_post_meta( $post_id, 'entity_' . $parent_account_ref->LogicalName, $parent_account_ref->Id );
 
                 // apaga o erro de log do post
                 \delete_post_meta( $post_id, 'log_error' );
@@ -104,13 +104,14 @@ function approval_entity( $post_id ) {
                     $level_id = $group->group_parent_level_id;
                     $pmpro_approvals = \PMPro_Approvals::approveMember( $user_id, $level_id, true );
 
-                    // salva o id do contato do CRM no usuário do WP
-                    update_user_meta( $user_id, '_ethos_crm_contact_id', $parent_account_id->Id );
+                    update_user_meta( $user_id, '_ethos_crm_contact_id', $parent_account_ref->Id );
+
+                    \ethos\crm\update_contact( $user_id );
 
                     if ( ! $pmpro_approvals ) {
                         update_user_meta( $user_id, 'log_error', [
                             'message' => 'Erro ao aprovar usuário',
-                            'group' => $group
+                            'group' => $group_id
                         ] );
                     }
                 } else {
@@ -125,11 +126,11 @@ function approval_entity( $post_id ) {
 add_action( 'approval_entity', 'hacklabr\approval_entity', 10 );
 
 function add_post_to_sync_waiting_list( $post_id ) {
-    $_pmpro_group = get_post_meta( $post_id, '_pmpro_group', true );
-    $get_entity_id = get_post_meta( $post_id, 'entity_lead', true );
+    $group_id = get_post_meta( $post_id, '_pmpro_group', true );
+    $lead_id = get_post_meta( $post_id, 'entity_lead', true );
     $is_imported = get_post_meta( $post_id, '_ethos_from_crm', true );
 
-    if ( $_pmpro_group && ! $get_entity_id && ! $is_imported ) {
+    if ( $group_id && ! $lead_id && ! $is_imported ) {
         add_to_sync_waiting_list( $post_id );
     }
 
