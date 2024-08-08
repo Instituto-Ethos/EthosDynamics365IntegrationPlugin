@@ -54,8 +54,6 @@ function sync_entity( $post_id ) {
         if ( $lead_response['status'] === 'success' ) {
             $lead_id = $lead_response['entity_id'];
 
-            // salva o relacionamento da entidade no post
-            update_post_meta( $post_id, 'entity_lead', $lead_id );
             update_post_meta( $post_id, '_ethos_crm_lead_id', $lead_id );
 
             // apaga o erro de log do post
@@ -78,19 +76,56 @@ function sync_entity( $post_id ) {
 
 add_action( 'sync_entity', 'hacklabr\sync_entity', 10 );
 
+function approval_entity_contacts( $group_id, $account_id ) {
+    $group = get_pmpro_group( intval( $group_id ) );
+
+    $parent_user_id = $group->group_parent_user_id;
+    $parent_level_id = $group->group_parent_level_id;
+    
+    $is_approved = \PMPro_Approvals::approveMember( $parent_user_id, $parent_level_id, true );
+    if ( ! $is_approved ) {
+        update_user_meta( $parent_user_id, 'log_error', [
+            'message' => 'Erro ao aprovar usuário',
+            'group' => $group_id,
+        ] );
+    }
+
+    update_user_meta( $parent_user_id, '_ethos_crm_account_id', $account_id );
+
+    \ethos\crm\update_contact( $parent_user_id );
+
+    $child_members = $group->get_active_members(false);
+    foreach ($child_members as $child_member) {
+        $child_user_id = $child_member->group_child_user_id;
+        $child_level_id = $child_member->group_child_level_id;
+
+        update_user_meta( $child_user_id, '_ethos_crm_account_id', $account_id );
+
+        $is_approved = \PMPro_Approvals::approveMember( $child_user_id, $child_level_id, true );
+        if ( ! $is_approved ) {
+            update_user_meta( $child_user_id, 'log_error', [
+                'message' => 'Erro ao aprovar usuário',
+                'group' => $group_id,
+            ] );
+        }
+    }
+}
+
 function approval_entity( $post_id ) {
     $waiting_approval = get_option( '_ethos_waiting_approval', [] );
 
     if ( ( array_search( $post_id, $waiting_approval ) ) !== false ) {
-        $lead_id = get_post_meta( $post_id, 'entity_lead', true );
+        $lead_id = get_post_meta( $post_id, '_ethos_crm_lead_id', true );
         $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
         if ( $lead && $lead->GetAttributeValue( 'parentaccountid' ) ) {
-            $parent_account_ref = $lead->GetAttributeValue( 'parentaccountid' );
+            $parent_account = $lead->GetAttributeValue( 'parentaccountid' );
 
-            if ( $parent_account_ref->Id ) {
+            if ( $parent_account->Id ) {
+                $account_id = $parent_account->Id;
+
                 // salva o relacionamento da entidade no post
-                update_post_meta( $post_id, 'entity_' . $parent_account_ref->LogicalName, $parent_account_ref->Id );
+                update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
 
                 // apaga o erro de log do post
                 \delete_post_meta( $post_id, 'log_error' );
@@ -101,21 +136,7 @@ function approval_entity( $post_id ) {
                 $group_id = get_post_meta( $post_id, '_pmpro_group', true );
 
                 if ( ! empty( $group_id ) ) {
-                    $group = get_pmpro_group( intval( $group_id ) );
-                    $user_id = $group->group_parent_user_id;
-                    $level_id = $group->group_parent_level_id;
-                    $pmpro_approvals = \PMPro_Approvals::approveMember( $user_id, $level_id, true );
-
-                    update_user_meta( $user_id, '_ethos_crm_contact_id', $parent_account_ref->Id );
-
-                    \ethos\crm\update_contact( $user_id );
-
-                    if ( ! $pmpro_approvals ) {
-                        update_user_meta( $user_id, 'log_error', [
-                            'message' => 'Erro ao aprovar usuário',
-                            'group' => $group_id
-                        ] );
-                    }
+                    approval_entity_contacts( $group_id, $account_id );
                 } else {
                     // salva o erro de log no user
                     update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
@@ -129,7 +150,7 @@ add_action( 'approval_entity', 'hacklabr\approval_entity', 10 );
 
 function add_post_to_sync_waiting_list( $post_id ) {
     $group_id = get_post_meta( $post_id, '_pmpro_group', true );
-    $lead_id = get_post_meta( $post_id, 'entity_lead', true );
+    $lead_id = get_post_meta( $post_id, '_ethos_crm_lead_id', true );
     $is_imported = get_post_meta( $post_id, '_ethos_from_crm', true );
 
     if ( $group_id && ! $lead_id && ! $is_imported ) {
