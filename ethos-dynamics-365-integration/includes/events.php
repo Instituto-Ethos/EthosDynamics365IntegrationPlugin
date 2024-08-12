@@ -12,14 +12,18 @@ function event_exists_on_wp( $entity_id ) {
                 'compare' => '='
             ]
         ],
-        'fields'         => 'ids',
-        'posts_per_page' => 1
+        'posts_per_page' => 1,
+
+        // The Events Calendar can add filters that may cause a false mismatch
+        'suppress_filters' => true,
+        'tribe_remove_date_filters' => true,
+        'tribe_suppress_query_filters' => true,
     ];
 
     $get_events = get_posts( $args );
 
     if ( count( $get_events ) > 0 ) {
-        return $get_events[0];
+        return $get_events[0]->ID;
     }
 
     return false;
