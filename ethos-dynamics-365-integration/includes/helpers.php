@@ -150,18 +150,20 @@ function update_crm_entity ( string $entity_name, string $entity_id, array $attr
 
 function get_crm_entities( string $entity, array $args = [] ) {
     $params = wp_parse_args($args, [
-        'cache_for' => 6 * HOUR_IN_SECONDS,
+        'cache' => 6 * HOUR_IN_SECONDS,
         'per_page'   => 100,
         'orderby' => 'createdon',
         'order'   => 'DESC',
         'filters' => [],
     ]);
 
-    $cache_key = 'crm_entities_' . md5( $entity . serialize( $params ) );
-    $cached_data = get_transient( $cache_key );
+    if ( $params['cache'] !== false ) {
+        $cache_key = 'crm_entities_' . md5( $entity . serialize( $params ) );
+        $cached_data = get_transient( $cache_key );
 
-    if ( $cached_data !== false ) {
-        return $cached_data;
+        if ( $cached_data !== false ) {
+            return $cached_data;
+        }
     }
 
     try {
@@ -185,7 +187,11 @@ function get_crm_entities( string $entity, array $args = [] ) {
 
         if ( $client !== false ) {
             $result = $client->RetrieveMultiple( $query );
-            set_transient( $cache_key, $result, $params['cache_for'] );
+
+            if ( $params['cache'] !== false ) {
+                set_transient( $cache_key, $result, $params['cache'] );
+            }
+
             return $result;
         }
 
@@ -253,24 +259,31 @@ function iterate_crm_entities( string $entity, array $args = [] ) {
 
 function get_crm_entity_by_id( string $entity_name, string $entity_id, array $args = [] ) {
     $params = wp_parse_args($args, [
-        'cache_for' => 6 * HOUR_IN_SECONDS,
+        'cache' => 6 * HOUR_IN_SECONDS,
     ]);
 
-    $client = get_client_on_dynamics();
-
-    if ( $client !== false ) {
+    if ( $params['cache'] !== false ) {
         $cached_data = get_cached_crm_entity( $entity_name, $entity_id );
 
         if ( ! empty( $cached_data ) ) {
             return $cached_data;
         }
+    }
 
+    $client = get_client_on_dynamics();
+
+    if ( $client !== false ) {
         $column_set = new \AlexaCRM\Xrm\ColumnSet();
         $column_set->AllColumns = true;
 
         try {
             $result = $client->Retrieve( $entity_name, $entity_id, $column_set );
-            return cache_crm_entity( $result, $params['cache_for'] );
+
+            if ( $params['cache'] !== false ) {
+                cache_crm_entity( $result, $params['cache'] );
+            }
+
+            return $result;
         } catch ( \Exception $e ) {
             do_action( 'logger', $e->getMessage() );
         }
@@ -279,12 +292,11 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, array $ar
     return false;
 }
 
-function cache_crm_entity( Entity|null $entity, int $cache_for = 6 * HOUR_IN_SECONDS ) {
+function cache_crm_entity( Entity|null $entity, int $expiration = 6 * HOUR_IN_SECONDS ) {
     if ( ! empty( $entity ) ) {
         $cache_key = 'crm_entity_' . ( $entity->LogicalName ?? '' ) . '_' . $entity->Id;
-        set_transient( $cache_key, $entity, $cache_for );
+        set_transient( $cache_key, $entity, $expiration );
     }
-    return $entity;
 }
 
 function get_cached_crm_entity( string $entity_name, string $entity_id ) {
