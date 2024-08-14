@@ -3,6 +3,7 @@
 namespace hacklabr;
 
 use \AlexaCRM\Xrm\Entity;
+use \AlexaCRM\Xrm\EntityCollection;
 use \AlexaCRM\Xrm\EntityReference;
 
 /**
@@ -162,6 +163,7 @@ function get_crm_entities( string $entity, array $args = [] ) {
         $cached_data = get_transient( $cache_key );
 
         if ( $cached_data !== false ) {
+            assert( $cached_data instanceof EntityCollection );
             return $cached_data;
         }
     }
@@ -199,7 +201,7 @@ function get_crm_entities( string $entity, array $args = [] ) {
         do_action( 'logger', $e->getMessage() );
     }
 
-    return false;
+    return null;
 }
 
 function iterate_crm_entities( string $entity, array $args = [] ) {
