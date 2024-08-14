@@ -81,7 +81,7 @@ function approval_entity_contacts( $group_id, $account_id ) {
 
     $parent_user_id = $group->group_parent_user_id;
     $parent_level_id = $group->group_parent_level_id;
-    
+
     $is_approved = \PMPro_Approvals::approveMember( $parent_user_id, $parent_level_id, true );
     if ( ! $is_approved ) {
         update_user_meta( $parent_user_id, 'log_error', [
@@ -124,13 +124,11 @@ function approval_entity( $post_id ) {
             if ( $parent_account->Id ) {
                 $account_id = $parent_account->Id;
 
-                // salva o relacionamento da entidade no post
                 update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
+                \ethos\crm\update_account( $post_id, $account_id );
 
-                // apaga o erro de log do post
                 \delete_post_meta( $post_id, 'log_error' );
 
-                // remove post da lista de aprovação
                 remove_from_approval_waiting( $post_id );
 
                 $group_id = get_post_meta( $post_id, '_pmpro_group', true );
@@ -138,7 +136,6 @@ function approval_entity( $post_id ) {
                 if ( ! empty( $group_id ) ) {
                     approval_entity_contacts( $group_id, $account_id );
                 } else {
-                    // salva o erro de log no user
                     update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
                 }
             }
