@@ -292,15 +292,24 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, array $ar
     return false;
 }
 
+function get_crm_entity_cache_key( string $entity_name, string $entity_id ) {
+    return 'crm_entity_' . $entity_name . '_' . $entity_id;
+}
+
 function cache_crm_entity( Entity|null $entity, int $expiration = 6 * HOUR_IN_SECONDS ) {
     if ( ! empty( $entity ) ) {
-        $cache_key = 'crm_entity_' . ( $entity->LogicalName ?? '' ) . '_' . $entity->Id;
+        $cache_key = get_crm_entity_cache_key( $entity->LogicalName ?? '', $entity->Id );
         set_transient( $cache_key, $entity, $expiration );
     }
 }
 
+function forget_cached_crm_entity( string $entity_name, string $entity_id ) {
+    $cache_key = get_crm_entity_cache_key( $entity_name, $entity_id );
+    delete_transient( $cache_key );
+}
+
 function get_cached_crm_entity( string $entity_name, string $entity_id ) {
-    $cache_key = 'crm_entity_' .  $entity_name . '_' . $entity_id;
+    $cache_key = get_crm_entity_cache_key( $entity_name, $entity_id );
     $entity = get_transient( $cache_key );
 
     if ( empty( $entity ) ) {
