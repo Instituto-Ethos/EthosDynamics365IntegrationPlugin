@@ -30,6 +30,9 @@ function event_exists_on_wp( $entity_id ) {
 }
 
 function create_event_on_wp( $entity ) {
+    if ( $existing_id = event_exists_on_wp( $entity->Id ) ) {
+        return $existing_id;
+    }
 
     if ( ! \class_exists( 'Tribe__Events__API' ) ) {
         return false;
