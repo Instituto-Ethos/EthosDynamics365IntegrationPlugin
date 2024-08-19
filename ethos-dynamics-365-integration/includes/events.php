@@ -109,7 +109,6 @@ function create_event_on_wp( Entity $entity ) {
 }
 
 function update_event_on_wp( int $post_id, Entity $entity ) {
-    $entity_id = $entity->Id;
     $attributes = $entity->Attributes;
 
     if ( ! \class_exists( 'Tribe__Events__API' ) ) {
@@ -118,6 +117,7 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
 
     if ( intval( $attributes['statuscode'] ?? 0 ) == 2 ) {
         \Tribe__Events__API::deleteEvent( $post_id, true );
+        return false;
     }
 
     $start_date = format_iso8601_to_events( $attributes['fut_dt_realizacao'] );
