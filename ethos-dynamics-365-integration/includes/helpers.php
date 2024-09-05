@@ -369,3 +369,21 @@ function format_currency_value( $value ) {
 
     return $value;
 }
+
+/**
+ * Format a CNPJ number.
+ *
+ * @param string $cnpj The CNPJ number to format.
+ * @return string The formatted CNPJ number.
+ */
+function format_cnpj($cnpj) {
+    $cnpj = preg_replace('/\D/', '', $cnpj);
+
+    if (strlen($cnpj) !== 14) {
+        return __('Invalid CNPJ number', 'hacklabr');
+    }
+
+    $cnpj_masked = preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $cnpj);
+
+    return $cnpj_masked;
+}
