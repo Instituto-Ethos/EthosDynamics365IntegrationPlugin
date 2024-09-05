@@ -173,7 +173,7 @@ function send_account_to_crm( $post_id ) {
     if ( $name && $cnpj ) {
         $attributes = [
             'name'        => $name,
-            'fut_st_cnpj' => $cnpj,
+            'fut_st_cnpj' => format_cnpj($cnpj),
         ];
 
         if ( isset( $post_meta['razao_social'][0] ) ) {
@@ -254,8 +254,8 @@ function send_lead_to_crm( $post_id ) {
             'fullname'                   => $name,
             'fut_address1_logradouro'    => $post_meta['end_logradouro'][0] ?? '',
             'fut_address1_nro'           => $post_meta['end_numero'][0] ?? '',
-            'fut_st_cnpj'                => $cnpj,
-            'fut_st_cnpj'                => $cnpj,
+            'fut_st_cnpj'                => format_cnpj($cnpj),
+            'fut_st_cnpjsemmascara'      => $cnpj,
             'fut_st_complementoorigem'   => $post_meta['segmento'][0] ?? '',
             'fut_st_inscricaoestadual'   => $post_meta['inscricao_estadual'][0] ?? '',
             'fut_st_inscricaomunicipal'  => $post_meta['inscricao_municipal'][0] ?? '',
