@@ -163,68 +163,6 @@ function cancel_sync( $post_id ) {
     remove_from_approval_waiting( $post_id );
 }
 
-function send_account_to_crm( $post_id ) {
-    $post_meta = get_post_meta( $post_id );
-
-    // Required fields
-    $name = $post_meta['nome_fantasia'][0] ?? '';
-    $cnpj = $post_meta['cnpj'][0] ?? '';
-
-    if ( $name && $cnpj ) {
-        $attributes = [
-            'name'        => $name,
-            'fut_st_cnpj' => format_cnpj($cnpj),
-        ];
-
-        if ( isset( $post_meta['razao_social'][0] ) ) {
-            $attributes['fut_st_razaosocial'] = $post_meta['fut_st_razaosocial'][0];
-        }
-
-        if ( isset( $post_meta['inscricao_estadual'][0] ) ) {
-            $attributes['fut_st_inscricaoestadual'] = $post_meta['inscricao_estadual'][0];
-        }
-
-        if ( isset( $post_meta['inscricao_municipal'][0] ) ) {
-            $attributes['fut_st_inscricaomunicipal'] = $post_meta['inscricao_municipal'][0];
-        }
-
-        if ( isset( $post_meta['website'][0] ) ) {
-            $attributes['websiteurl'] = $post_meta['website'][0];
-        }
-
-        if ( isset( $post_meta['segmento'][0] ) ) {
-            $attributes['fut_lk_setor'] = $post_meta['segmento'][0];
-        }
-
-        try {
-
-            $entity_id = create_crm_entity( 'lead', $attributes );
-
-            update_post_meta( $post_id, '_ethos_crm_lead_id', $entity_id );
-
-            return [
-                'status'    => 'success',
-                'message'   => 'Entidade criada com sucesso no CRM.',
-                'entity_id' => $entity_id,
-            ];
-
-        } catch ( \Exception $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Erro ao enviar conta (Post ID $post_id): " . $e->getMessage()
-            ];
-
-        }
-    }
-
-    update_meta_log_error( $post_id, 'Dados insuficientes para criar a entidade no CRM.' );
-    return [
-        'status'  => 'error',
-        'message' => "Dados insuficientes para criar a entidade no CRM (Post ID $post_id)."
-    ];
-}
-
 function send_lead_to_crm( $post_id ) {
     $author_id = get_post_field( 'post_author', $post_id );
     $author_name = get_the_author_meta( 'display_name', $author_id );
