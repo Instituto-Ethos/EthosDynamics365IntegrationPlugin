@@ -116,27 +116,36 @@ function approval_entity( $post_id ) {
 
     if ( ( array_search( $post_id, $waiting_approval ) ) !== false ) {
         $lead_id = get_post_meta( $post_id, '_ethos_crm_lead_id', true );
-        $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
-        if ( $lead && $lead->GetAttributeValue( 'parentaccountid' ) ) {
-            $parent_account = $lead->GetAttributeValue( 'parentaccountid' );
+        if ( $lead_id ) {
+            forget_cached_crm_entity( 'lead', $lead_id );
+            $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
-            if ( $parent_account->Id ) {
-                $account_id = $parent_account->Id;
+            if ( $lead ) {
+                $account = $lead->Attributes['parentaccountid'] ?? $lead->Attributes['accountid'] ?? null;
 
-                update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
-                \ethos\crm\update_account( $post_id, $account_id );
+                if ( $account && $account->Id ) {
+                    $account_id = $account->Id;
 
-                \delete_post_meta( $post_id, 'log_error' );
+                    update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
+                    \ethos\crm\update_account( $post_id, $account_id );
 
-                remove_from_approval_waiting( $post_id );
+                    if ( $contact = $lead->GetAttributeValue( 'parentcontactid' ) ) {
+                        $author_id = get_post_field( 'post_author', $post_id );
+                        update_user_meta( $author_id, '_ethos_crm_contact_id', $contact->Id );
+                    }
 
-                $group_id = get_post_meta( $post_id, '_pmpro_group', true );
+                    \delete_post_meta( $post_id, 'log_error' );
 
-                if ( ! empty( $group_id ) ) {
-                    approval_entity_contacts( $group_id, $account_id );
-                } else {
-                    update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
+                    remove_from_approval_waiting( $post_id );
+
+                    $group_id = get_post_meta( $post_id, '_pmpro_group', true );
+
+                    if ( ! empty( $group_id ) ) {
+                        approval_entity_contacts( $group_id, $account_id );
+                    } else {
+                        update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
+                    }
                 }
             }
         }
@@ -163,112 +172,13 @@ function cancel_sync( $post_id ) {
     remove_from_approval_waiting( $post_id );
 }
 
-function send_account_to_crm( $post_id ) {
-    $post_meta = get_post_meta( $post_id );
-
-    // Required fields
-    $name = $post_meta['nome_fantasia'][0] ?? '';
-    $cnpj = $post_meta['cnpj'][0] ?? '';
-
-    if ( $name && $cnpj ) {
-        $attributes = [
-            'name'        => $name,
-            'fut_st_cnpj' => format_cnpj($cnpj),
-        ];
-
-        if ( isset( $post_meta['razao_social'][0] ) ) {
-            $attributes['fut_st_razaosocial'] = $post_meta['fut_st_razaosocial'][0];
-        }
-
-        if ( isset( $post_meta['inscricao_estadual'][0] ) ) {
-            $attributes['fut_st_inscricaoestadual'] = $post_meta['inscricao_estadual'][0];
-        }
-
-        if ( isset( $post_meta['inscricao_municipal'][0] ) ) {
-            $attributes['fut_st_inscricaomunicipal'] = $post_meta['inscricao_municipal'][0];
-        }
-
-        if ( isset( $post_meta['website'][0] ) ) {
-            $attributes['websiteurl'] = $post_meta['website'][0];
-        }
-
-        if ( isset( $post_meta['segmento'][0] ) ) {
-            $attributes['fut_lk_setor'] = $post_meta['segmento'][0];
-        }
-
-        try {
-
-            $entity_id = create_crm_entity( 'lead', $attributes );
-
-            update_post_meta( $post_id, '_ethos_crm_lead_id', $entity_id );
-
-            return [
-                'status'    => 'success',
-                'message'   => 'Entidade criada com sucesso no CRM.',
-                'entity_id' => $entity_id,
-            ];
-
-        } catch ( \Exception $e ) {
-
-            return [
-                'status'  => 'error',
-                'message' => "Erro ao enviar conta (Post ID $post_id): " . $e->getMessage()
-            ];
-
-        }
-    }
-
-    update_meta_log_error( $post_id, 'Dados insuficientes para criar a entidade no CRM.' );
-    return [
-        'status'  => 'error',
-        'message' => "Dados insuficientes para criar a entidade no CRM (Post ID $post_id)."
-    ];
-}
-
 function send_lead_to_crm( $post_id ) {
-    $author_id = get_post_field( 'post_author', $post_id );
-    $author_name = get_the_author_meta( 'display_name', $author_id );
-
-    $explode_author_name = explode( ' ', $author_name );
-    $firstname = $explode_author_name[0];
-    unset( $explode_author_name[0] );
-    $lastname = implode( ' ', $explode_author_name );
-
-    $post_meta = get_post_meta( $post_id );
-
-    $name = $post_meta['nome_fantasia'][0] ?? '';
-    $cnpj = $post_meta['cnpj'][0] ?? '';
+    $name = get_post_meta( $post_id, 'nome_fantasia', true );
+    $cnpj = get_post_meta( $post_id, 'cnpj', true );
 
     // Check required fields
     if ( $name && $cnpj ) {
-
-        $systemuser = get_option( 'systemuser' );
-
-        $attributes = [
-            'ownerid'                    => create_crm_reference( 'systemuser', $systemuser ),
-            'address1_city'              => $post_meta['end_cidade'][0] ?? '',
-            'address1_postalcode'        => $post_meta['end_cep'][0] ?? '',
-            'companyname'                => $name,
-            'entityimage_url'            => \get_the_post_thumbnail_url( $post_id ),
-            'firstname'                  => $name,
-            'fullname'                   => $name,
-            'fut_address1_logradouro'    => $post_meta['end_logradouro'][0] ?? '',
-            'fut_address1_nro'           => $post_meta['end_numero'][0] ?? '',
-            'fut_st_cnpj'                => format_cnpj($cnpj),
-            'fut_st_cnpjsemmascara'      => $cnpj,
-            'fut_st_complementoorigem'   => $post_meta['segmento'][0] ?? '',
-            'fut_st_inscricaoestadual'   => $post_meta['inscricao_estadual'][0] ?? '',
-            'fut_st_inscricaomunicipal'  => $post_meta['inscricao_municipal'][0] ?? '',
-            'fut_st_nome'                => $firstname,
-            'fut_st_nomecompleto'        => $author_name,
-            'fut_st_nomefantasiaempresa' => $name,
-            'fut_st_sobrenome'           => $lastname,
-            'leadsourcecode'             => 4, // Outros
-            'websiteurl'                 => $post_meta['website'][0] ?? '',
-            'yomifirstname'              => $firstname,
-            'yomifullname'               => $name,
-            'yomilastname'               => $lastname
-        ];
+        $attributes = \ethos\crm\map_lead_attributes( $post_id );
 
         try {
 
