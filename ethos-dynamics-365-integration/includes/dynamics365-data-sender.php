@@ -116,27 +116,36 @@ function approval_entity( $post_id ) {
 
     if ( ( array_search( $post_id, $waiting_approval ) ) !== false ) {
         $lead_id = get_post_meta( $post_id, '_ethos_crm_lead_id', true );
-        $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
-        if ( $lead && $lead->GetAttributeValue( 'parentaccountid' ) ) {
-            $parent_account = $lead->GetAttributeValue( 'parentaccountid' );
+        if ( $lead_id ) {
+            forget_cached_crm_entity( 'lead', $lead_id );
+            $lead = get_crm_entity_by_id( 'lead', $lead_id );
 
-            if ( $parent_account->Id ) {
-                $account_id = $parent_account->Id;
+            if ( $lead ) {
+                $account = $lead->Attributes['parentaccountid'] ?? $lead->Attributes['accountid'] ?? null;
 
-                update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
-                \ethos\crm\update_account( $post_id, $account_id );
+                if ( $account && $account->Id ) {
+                    $account_id = $account->Id;
 
-                \delete_post_meta( $post_id, 'log_error' );
+                    update_post_meta( $post_id, '_ethos_crm_account_id', $account_id );
+                    \ethos\crm\update_account( $post_id, $account_id );
 
-                remove_from_approval_waiting( $post_id );
+                    if ( $contact = $lead->GetAttributeValue( 'parentcontactid' ) ) {
+                        $author_id = get_post_field( 'post_author', $post_id );
+                        update_user_meta( $author_id, '_ethos_crm_contact_id', $contact->Id );
+                    }
 
-                $group_id = get_post_meta( $post_id, '_pmpro_group', true );
+                    \delete_post_meta( $post_id, 'log_error' );
 
-                if ( ! empty( $group_id ) ) {
-                    approval_entity_contacts( $group_id, $account_id );
-                } else {
-                    update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
+                    remove_from_approval_waiting( $post_id );
+
+                    $group_id = get_post_meta( $post_id, '_pmpro_group', true );
+
+                    if ( ! empty( $group_id ) ) {
+                        approval_entity_contacts( $group_id, $account_id );
+                    } else {
+                        update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
+                    }
                 }
             }
         }
