@@ -3,7 +3,7 @@
 namespace hacklabr;
 
 function schedule_sync_entity() {
-    $waiting_list = get_option( '_ethos_sync_waiting_list', [] );
+    $waiting_list = get_sync_waiting_list();
 
     foreach ( $waiting_list as $post_id ) {
         if ( ! wp_next_scheduled( 'sync_entity', [$post_id] ) ) {

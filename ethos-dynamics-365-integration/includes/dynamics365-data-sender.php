@@ -3,7 +3,7 @@
 namespace hacklabr;
 
 function add_to_sync_waiting_list( $post_id ) {
-    $waiting_list = get_option( '_ethos_sync_waiting_list', [] );
+    $waiting_list = get_sync_waiting_list();
 
     if ( in_array( $post_id, $waiting_list ) ) {
         return;
@@ -15,12 +15,16 @@ function add_to_sync_waiting_list( $post_id ) {
 }
 
 function remove_from_sync_waiting_list( $post_id ) {
-    $waiting_list = get_option( '_ethos_sync_waiting_list', [] );
+    $waiting_list = get_sync_waiting_list();
 
     if ( ( $key = array_search( $post_id, $waiting_list ) ) !== false ) {
         unset( $waiting_list[$key] );
         update_option( '_ethos_sync_waiting_list', $waiting_list );
     }
+}
+
+function get_sync_waiting_list() {
+    return get_option( '_ethos_sync_waiting_list', [] );
 }
 
 function add_to_approval_waiting( $post_id ) {
@@ -45,7 +49,7 @@ function remove_from_approval_waiting( $post_id ) {
 }
 
 function sync_entity( $post_id ) {
-    $waiting_list = get_option( '_ethos_sync_waiting_list', [] );
+    $waiting_list = get_sync_waiting_list();
 
     if ( ( array_search( $post_id, $waiting_list ) ) !== false ) {
         // sync here

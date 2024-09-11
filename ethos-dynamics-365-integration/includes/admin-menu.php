@@ -15,7 +15,7 @@ function add_sync_status_page() {
 add_action( 'admin_menu', 'hacklabr\\add_sync_status_page' );
 
 function render_sync_status_page() {
-    $waiting_sync = get_option( '_ethos_sync_waiting_list', [] );
+    $waiting_sync = get_sync_waiting_list();
     $waiting_approval = get_option( '_ethos_waiting_approval', [] );
 
     if ( isset( $_GET['action'] ) && isset( $_GET['post_id'] ) ) {
