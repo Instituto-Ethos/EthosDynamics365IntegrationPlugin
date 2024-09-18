@@ -387,3 +387,45 @@ function format_cnpj($cnpj) {
 
     return $cnpj_masked;
 }
+
+/**
+ * Updates the post content metadata when the content of a 'tribe_events' post has changed.
+ *
+ * @version   0.0.1
+ * @since     0.6.2
+ * @param int $post_id The ID of the post that was saved.
+ */
+function events_content_has_updated( $post_id ) {
+    if ( wp_is_post_revision( $post_id ) ) {
+        return;
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        return;
+    }
+
+    $content_updated = get_post_meta( $post_id, '_ethos_content_updated', true );
+
+    if ( $content_updated ) {
+        return;
+    }
+
+    $post_content = get_post_field( 'post_content', $post_id );
+    $post_content_md5 = md5( $post_content );
+
+    $stored_post_content_md5 = get_post_meta( $post_id, '_ethos_content_md5', true );
+
+    if ( ! empty( $post_content_md5 ) && ! empty( $stored_post_content_md5 ) ) {
+        if ( $post_content_md5 !== $stored_post_content_md5 ) {
+            update_post_meta( $post_id, '_ethos_content_updated', true );
+            delete_post_meta( $post_id, '_ethos_content_md5' );
+        }
+    }
+
+    if ( ! empty( $post_content_md5 ) && empty( $stored_post_content_md5 ) ) {
+        update_post_meta( $post_id, '_ethos_content_md5', $post_content_md5 );
+    }
+
+}
+
+add_action( 'save_post_tribe_events', 'hacklabr\events_content_has_updated' );

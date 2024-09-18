@@ -162,6 +162,22 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
         }
     }
 
+    /**
+     * Updates the post content for an event if the 'fut_txt_texto_confirmacao' attribute is set and the post content has not been updated before.
+     */
+    if ( isset( $attributes['fut_txt_texto_confirmacao'] ) ) {
+        $content_updated = get_post_meta( $post_id, '_ethos_content_updated', true );
+
+        if ( ! $content_updated ) {
+            $post_content = $attributes['fut_txt_texto_confirmacao'];
+
+            wp_update_post( [
+                'ID'           => $post_id,
+                'post_content' => $post_content
+            ] );
+        }
+    }
+
     return $result;
 }
 

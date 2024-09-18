@@ -3,7 +3,7 @@
  * Plugin Name:       Ethos Dynamics 365 Integration
  * Plugin URI:        https://hacklab.com.br/
  * Description:       Turn integration with Dynamics 365.
- * Version:           0.6.1
+ * Version:           0.6.2
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Hacklab/
