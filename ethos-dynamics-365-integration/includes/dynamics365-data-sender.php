@@ -80,7 +80,7 @@ function sync_entity( $post_id ) {
 
 add_action( 'sync_entity', 'hacklabr\sync_entity', 10 );
 
-function approval_entity_contacts( $group_id, $account_id ) {
+function approval_entity_contacts( $group_id, $account_id, $post_id ) {
     $group = get_pmpro_group( intval( $group_id ) );
 
     $parent_user_id = $group->group_parent_user_id;
@@ -104,6 +104,8 @@ function approval_entity_contacts( $group_id, $account_id ) {
         $child_level_id = $child_member->group_child_level_id;
 
         update_user_meta( $child_user_id, '_ethos_crm_account_id', $account_id );
+
+        \ethos\crm\update_contact( $child_user_id, $post_id );
 
         $is_approved = \PMPro_Approvals::approveMember( $child_user_id, $child_level_id, true );
         if ( ! $is_approved ) {
@@ -146,7 +148,7 @@ function approval_entity( $post_id ) {
                     $group_id = get_post_meta( $post_id, '_pmpro_group', true );
 
                     if ( ! empty( $group_id ) ) {
-                        approval_entity_contacts( $group_id, $account_id );
+                        approval_entity_contacts( $group_id, $account_id, $post_id );
                     } else {
                         update_post_meta( $post_id, 'log_error', 'Erro no grupo' );
                     }
