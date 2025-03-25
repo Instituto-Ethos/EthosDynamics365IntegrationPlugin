@@ -120,6 +120,19 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
         return false;
     }
 
+    // Verifica se o evento foi modificado no CRM antes de atualizar no WP
+    $crm_modifiedon = $attributes['modifiedon'] ?? null;
+    $wp_modifiedon = get_post_meta( $post_id, '_ethos_crm:modifiedon', true ) ?? null;
+
+    if ( $crm_modifiedon && $wp_modifiedon ) {
+        $crm_modifiedon_date = new \DateTime( $crm_modifiedon );
+        $wp_modifiedon_date = new \DateTime( $wp_modifiedon );
+
+        if ( $crm_modifiedon_date <= $wp_modifiedon_date ) {
+            return false;
+        }
+    }
+
     $start_date = format_iso8601_to_events( $attributes['fut_dt_realizacao'] );
     $end_date   = format_iso8601_to_events( $attributes['fut_dt_dataehoratermino'] );
     $title      = $attributes['fut_name'] ?? '';
@@ -178,6 +191,9 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
         }
     }
 
+    // Update the 'updated_on_wp' meta field with the current time to indicate that the event was updated on WordPress.
+    update_post_meta( $post_id, '_ethos_crm:updated_on_wp', current_time( 'mysql' ) );
+
     return $result;
 }
 
@@ -222,4 +238,56 @@ function do_get_crm_events($num_events = 5) {
             }
         }
     }
+}
+
+/**
+ * Retrieves a CRM event by its ID and either creates or updates the corresponding event in WordPress.
+ *
+ * @param string $fut_projeto_id The ID of the CRM event to retrieve.
+ *
+ * @return int|false The ID of the created or updated event on success, or false on failure.
+ */
+function do_get_crm_event( string $fut_projeto_id ) {
+    $event = get_crm_entity_by_id( 'fut_projeto', $fut_projeto_id, ['cache' => false] );
+
+    if ( ! $event ) {
+        get_logger( [
+            'message' => "Evento não encontrado. fut_projeto_id: $fut_projeto_id",
+            'file'    => __FILE__,
+            'line'    => __LINE__
+        ] );
+        return false;
+    }
+
+    $post_id = event_exists_on_wp( $event->Id );
+
+    if ( ! $post_id ) {
+        $result = create_event_on_wp( $event );
+        if ( $result ) {
+            get_logger( [
+                'message' => "Evento criado. post_id: $result",
+                'file'    => __FILE__,
+                'line'    => __LINE__
+            ] );
+        }
+        return $result;
+    }
+
+    $result = update_event_on_wp( $post_id, $event );
+
+    if ( $result ) {
+        get_logger( [
+            'message' => "Evento atualizado. post_id: $result",
+            'file'    => __FILE__,
+            'line'    => __LINE__
+        ] );
+    } else {
+        get_logger( [
+            'message' => "O evento do WP tem a mesma data de modificação do CRM. fut_projeto_id: $fut_projeto_id. post_id: $post_id",
+            'file'    => __FILE__,
+            'line'    => __LINE__
+        ] );
+    }
+
+    return $result;
 }
