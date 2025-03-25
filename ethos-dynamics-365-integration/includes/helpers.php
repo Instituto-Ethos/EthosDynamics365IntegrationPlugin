@@ -429,3 +429,16 @@ function events_content_has_updated( $post_id ) {
 }
 
 add_action( 'save_post_tribe_events', 'hacklabr\events_content_has_updated' );
+
+/**
+ * Logs data if the 'logger' parameter is set in the URL and the current user has the 'manage_options' capability.
+ *
+ * @param mixed $data The data to be logged.
+ */
+if ( ! function_exists( 'get_logger' ) ) {
+    function get_logger( $data ) {
+        if ( isset( $_GET['logger'] ) && current_user_can( 'manage_options' ) ) {
+            do_action( 'logger', $data );
+        }
+    }
+}
