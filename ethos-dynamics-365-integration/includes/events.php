@@ -25,7 +25,7 @@ function event_exists_on_wp( string $entity_id ) {
 
     $events = get_posts( $args );
 
-    if ( empty( $events ) ) {
+    if ( ! empty( $events ) ) {
         return $events[0]->ID;
     }
 
