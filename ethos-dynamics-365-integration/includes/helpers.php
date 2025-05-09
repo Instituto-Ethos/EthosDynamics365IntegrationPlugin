@@ -86,6 +86,7 @@ function get_entity_attibutes( string $entity ) {
         }
     } catch ( \Exception $e ) {
         echo "Erro: " . $e->getMessage() . "\n";
+        do_action( 'logger', $e->getMessage() );
     }
 }
 

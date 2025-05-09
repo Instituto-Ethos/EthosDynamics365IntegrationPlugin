@@ -7,6 +7,7 @@ use \AlexaCRM\Xrm\Entity;
 function event_exists_on_wp( string $entity_id ) {
     $args = [
         'post_type'      => 'tribe_events',
+        'post_status'    => ['publish', 'pending', 'draft', 'future', 'private', 'inherit'],
         'meta_query'     => [
             [
                 'key'     => 'entity_fut_projeto',
@@ -22,10 +23,10 @@ function event_exists_on_wp( string $entity_id ) {
         'tribe_suppress_query_filters' => true,
     ];
 
-    $get_events = get_posts( $args );
+    $events = get_posts( $args );
 
-    if ( count( $get_events ) > 0 ) {
-        return $get_events[0]->ID;
+    if ( empty( $events ) ) {
+        return $events[0]->ID;
     }
 
     return false;
