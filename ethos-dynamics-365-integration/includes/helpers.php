@@ -390,6 +390,24 @@ function format_cnpj($cnpj) {
 }
 
 /**
+ * Format a CPF number.
+ *
+ * @param string $cpf The CPF number to format.
+ * @return string The formatted CPF number.
+ */
+function format_cpf($cpf) {
+    $cpf = preg_replace('/\D/', '', $cpf);
+
+    if (strlen($cpf) !== 11) {
+        return __('Invalid CPF number', 'hacklabr');
+    }
+
+    $cpf_masked = preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
+
+    return $cpf_masked;
+}
+
+/**
  * Updates the post content metadata when the content of a 'tribe_events' post has changed.
  *
  * @version   0.0.1

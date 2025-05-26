@@ -226,7 +226,7 @@ function get_crm_projects_by_type( $name, $args = [] ) {
     return $result;
 }
 
-function do_get_crm_events($num_events = 5) {
+function do_get_crm_events($num_events = 10) {
     $events = get_crm_projects_by_type( ['Evento', 'Conferência'], [ 'per_page' => $num_events ] );
     if ( $events ) {
         $num = count($events);
