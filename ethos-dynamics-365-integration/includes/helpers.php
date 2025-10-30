@@ -34,6 +34,15 @@ function get_posts_by_meta( $meta_key, $meta_value = '', $limit = 10 ) {
     return $posts;
 }
 
+function format_meta_value( $value ) {
+    if ( is_array( $value ) || is_object( $value ) ) {
+        return json_encode( $value );
+    } elseif ( ! empty( $value ) || is_numeric( $value ) || $value === false ) {
+        return $value;
+    }
+    return null; // Should not save value
+}
+
 function update_meta_log_error( $post_id, $error ) {
     update_post_meta( $post_id, 'log_error', $error );
 }

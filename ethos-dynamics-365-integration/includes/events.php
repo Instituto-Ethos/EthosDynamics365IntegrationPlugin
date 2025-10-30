@@ -95,13 +95,8 @@ function create_event_on_wp( Entity $entity ) {
 
     foreach ( $attributes as $key => $value ) {
         $meta_key = '_ethos_crm:' . $key;
-        if ( is_array( $value ) || is_object( $value ) ) {
-            $meta_value = json_encode( $value );
-        } elseif ( ! empty( $value ) || is_numeric( $value ) ) {
-            $meta_value = $value;
-        }
-
-        if ( $meta_key && $meta_value ) {
+        $meta_value = format_meta_value( $value );
+        if ( $meta_value !== null ) {
             update_post_meta( $result, $meta_key, $meta_value );
         }
     }
@@ -165,13 +160,8 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
 
     foreach ( $attributes as $key => $value ) {
         $meta_key = '_ethos_crm:' . $key;
-        if ( is_array( $value ) || is_object( $value ) ) {
-            $meta_value = json_encode( $value );
-        } elseif ( ! empty( $value ) || is_numeric( $value ) ) {
-            $meta_value = $value;
-        }
-
-        if ( $meta_key && $meta_value ) {
+        $meta_value = format_meta_value( $value );
+        if ( $meta_value !== null ) {
             update_post_meta( $result, $meta_key, $meta_value );
         }
     }
