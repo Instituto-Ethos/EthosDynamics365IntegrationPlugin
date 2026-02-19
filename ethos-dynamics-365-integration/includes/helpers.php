@@ -5,6 +5,8 @@ namespace hacklabr;
 use \AlexaCRM\Xrm\Entity;
 use \AlexaCRM\Xrm\EntityCollection;
 use \AlexaCRM\Xrm\EntityReference;
+use \Snicco\Component\BetterWPCache\CacheFactory;
+use \Psr\Cache;
 
 /**
  * Retrieves a list of posts based on a given meta key and value.
@@ -345,6 +347,10 @@ function get_crm_application_id() {
 function get_crm_client_secret() {
     $options = get_option( 'msdyncrm_options' );
     return $options['clientSecret'] ?? '';
+}
+
+function get_psr6_cache(): Cache\CacheItemPoolInterface {
+    return CacheFactory::psr6( 'ethos-dynamics-365-integration' );
 }
 
 function format_iso8601_to_events( $date ) {

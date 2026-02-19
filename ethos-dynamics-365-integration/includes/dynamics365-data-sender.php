@@ -224,7 +224,10 @@ function get_client_on_dynamics() {
         $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
             get_crm_server_url(),
             get_crm_application_id(),
-            get_crm_client_secret()
+            get_crm_client_secret(),
+            [
+                'cachePool' => get_psr6_cache(),
+            ],
         );
 
         return $client;

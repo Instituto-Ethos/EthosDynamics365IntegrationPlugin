@@ -4,34 +4,33 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8d86f5ac9d7bcf09acdf2e1cd3cfec6",
+    "content-hash": "280376575b29654c3dacb6d3a9f49dfb",
     "packages": [
         {
             "name": "alexacrm/dynamics-webapi-toolkit",
-            "version": "dev-master",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexaCRM/dynamics-webapi-toolkit.git",
-                "reference": "1e866a5cc6b4ded867e7065a36422df4bbb15623"
+                "reference": "b32a543d37e8d083895dc5478b41d5aa6680e341"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexaCRM/dynamics-webapi-toolkit/zipball/1e866a5cc6b4ded867e7065a36422df4bbb15623",
-                "reference": "1e866a5cc6b4ded867e7065a36422df4bbb15623",
+                "url": "https://api.github.com/repos/AlexaCRM/dynamics-webapi-toolkit/zipball/b32a543d37e8d083895dc5478b41d5aa6680e341",
+                "reference": "b32a543d37e8d083895dc5478b41d5aa6680e341",
                 "shasum": ""
             },
             "require": {
                 "alexacrm/strong-serializer": "^2.0",
                 "elao/enum": "^1.6",
                 "guzzlehttp/guzzle": "^7.0",
-                "php": ">=7.4",
-                "psr/cache": "^1.0",
-                "psr/log": "^1.0"
+                "php": ">=8.2",
+                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^9.6"
+                "phpunit/phpunit": "^11.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -48,12 +47,12 @@
                     "email": "info@alexacrm.com"
                 }
             ],
-            "description": "Web API toolkit for Microsoft Dynamics 365 and Dynamics CRM",
+            "description": "Web API toolkit for Microsoft Dataverse and Dynamics 365",
             "support": {
                 "issues": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/issues",
-                "source": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/tree/3.3.2"
+                "source": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/tree/4.2.0"
             },
-            "time": "2024-04-10T13:41:38+00:00"
+            "time": "2025-06-17T12:59:47+00:00"
         },
         {
             "name": "alexacrm/strong-serializer",
@@ -95,6 +94,204 @@
                 "source": "https://github.com/AlexaCRM/strong-serializer/tree/2.0"
             },
             "time": "2020-09-18T11:46:28+00:00"
+        },
+        {
+            "name": "cache/simple-cache-bridge",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-cache/simple-cache-bridge.git",
+                "reference": "63c0179d9afeb34ed383870a64d19eb9a3fea0c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-cache/simple-cache-bridge/zipball/63c0179d9afeb34ed383870a64d19eb9a3fea0c1",
+                "reference": "63c0179d9afeb34ed383870a64d19eb9a3fea0c1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4",
+                "psr/cache": "^1.0 || ^2.0",
+                "psr/simple-cache": "^1.0"
+            },
+            "provide": {
+                "psr/simple-cache-implementation": "^1.0"
+            },
+            "require-dev": {
+                "cache/integration-tests": "^0.17",
+                "mockery/mockery": "^1.0",
+                "phpunit/phpunit": "^7.5.20 || ^9.5.10",
+                "symfony/cache": "^3.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cache\\Bridge\\SimpleCache\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Magnus Nordlander",
+                    "email": "magnus@fervo.se",
+                    "homepage": "https://github.com/magnusnordlander"
+                }
+            ],
+            "description": "A PSR-6 bridge to PSR-16. This will make any PSR-6 cache compatible with SimpleCache.",
+            "homepage": "http://www.php-cache.com/en/latest/",
+            "keywords": [
+                "Bridge",
+                "cache",
+                "psr-16",
+                "psr-6"
+            ],
+            "support": {
+                "source": "https://github.com/php-cache/simple-cache-bridge/tree/1.2.0"
+            },
+            "time": "2022-01-15T15:47:19+00:00"
+        },
+        {
+            "name": "cache/tag-interop",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-cache/tag-interop.git",
+                "reference": "a06c2c03555581cf3740a8c161bc680ce3265c61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-cache/tag-interop/zipball/a06c2c03555581cf3740a8c161bc680ce3265c61",
+                "reference": "a06c2c03555581cf3740a8c161bc680ce3265c61",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.5 || ^7.0 || ^8.0",
+                "psr/cache": "^1.0 || ^2.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cache\\TagInterop\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com",
+                    "homepage": "https://github.com/nyholm"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com",
+                    "homepage": "https://github.com/nicolas-grekas"
+                }
+            ],
+            "description": "Framework interoperable interfaces for tags",
+            "homepage": "https://www.php-cache.com/en/latest/",
+            "keywords": [
+                "cache",
+                "psr",
+                "psr6",
+                "tag"
+            ],
+            "support": {
+                "issues": "https://github.com/php-cache/tag-interop/issues",
+                "source": "https://github.com/php-cache/tag-interop/tree/master"
+            },
+            "time": "2021-12-31T11:58:30+00:00"
+        },
+        {
+            "name": "cache/taggable-cache",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-cache/taggable-cache.git",
+                "reference": "2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-cache/taggable-cache/zipball/2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec",
+                "reference": "2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec",
+                "shasum": ""
+            },
+            "require": {
+                "cache/tag-interop": "^1.0",
+                "php": ">=7.4",
+                "psr/cache": "^1.0 || ^2.0"
+            },
+            "require-dev": {
+                "cache/integration-tests": "^0.17",
+                "phpunit/phpunit": "^7.5.20 || ^9.5.10",
+                "symfony/cache": "^3.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cache\\Taggable\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aaron Scherer",
+                    "email": "aequasi@gmail.com",
+                    "homepage": "https://github.com/aequasi"
+                },
+                {
+                    "name": "Magnus Nordlander",
+                    "email": "magnus@fervo.se",
+                    "homepage": "https://github.com/magnusnordlander"
+                },
+                {
+                    "name": "Tobias Nyholm",
+                    "email": "tobias.nyholm@gmail.com",
+                    "homepage": "https://github.com/nyholm"
+                }
+            ],
+            "description": "Add tag support to your PSR-6 cache implementation",
+            "homepage": "http://www.php-cache.com/en/latest/",
+            "keywords": [
+                "Taggable",
+                "cache",
+                "psr6",
+                "tag"
+            ],
+            "support": {
+                "source": "https://github.com/php-cache/taggable-cache/tree/1.2.0"
+            },
+            "time": "2022-01-15T15:47:19+00:00"
         },
         {
             "name": "elao/enum",
@@ -143,8 +340,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.x-dev",
-                    "dev-1.x": "1.x-dev"
+                    "dev-1.x": "1.x-dev",
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -191,22 +388,22 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.9.x-dev",
+            "version": "7.10.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "1ee81e5fc8613ba1ad0b095f40e17c119dd4cc93"
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/1ee81e5fc8613ba1ad0b095f40e17c119dd4cc93",
-                "reference": "1ee81e5fc8613ba1ad0b095f40e17c119dd4cc93",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^1.5.3 || ^2.0.1",
-                "guzzlehttp/psr7": "^1.9.1 || ^2.5.1",
+                "guzzlehttp/promises": "^2.3",
+                "guzzlehttp/psr7": "^2.8",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
                 "symfony/deprecation-contracts": "^2.2 || ^3.0"
@@ -219,7 +416,7 @@
                 "ext-curl": "*",
                 "guzzle/client-integration-tests": "3.0.2",
                 "php-http/message-factory": "^1.1",
-                "phpunit/phpunit": "^8.5.36 || ^9.6.15",
+                "phpunit/phpunit": "^8.5.39 || ^9.6.20",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
             },
             "suggest": {
@@ -227,6 +424,7 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr/log": "Required for using the Log middleware"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -297,7 +495,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.9"
+                "source": "https://github.com/guzzle/guzzle/tree/7.10.0"
             },
             "funding": [
                 {
@@ -313,20 +511,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-31T19:57:34+00:00"
+            "time": "2025-08-23T22:36:01+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.0.x-dev",
+            "version": "2.3.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "ab801747cbf7d394d4d435c34364704f9bf048e6"
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/ab801747cbf7d394d4d435c34364704f9bf048e6",
-                "reference": "ab801747cbf7d394d4d435c34364704f9bf048e6",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/481557b130ef3790cf82b713667b43030dc9c957",
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957",
                 "shasum": ""
             },
             "require": {
@@ -334,7 +532,7 @@
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^8.5.36 || ^9.6.15"
+                "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
             "default-branch": true,
             "type": "library",
@@ -381,7 +579,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.0"
+                "source": "https://github.com/guzzle/promises/tree/2.3.0"
             },
             "funding": [
                 {
@@ -397,20 +595,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-31T10:06:07+00:00"
+            "time": "2025-08-22T14:34:08+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.6.x-dev",
+            "version": "2.8.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "a243f80a1ca7fe8ceed4deee17f12c1930efe662"
+                "reference": "21dc724a0583619cd1652f673303492272778051"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a243f80a1ca7fe8ceed4deee17f12c1930efe662",
-                "reference": "a243f80a1ca7fe8ceed4deee17f12c1930efe662",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/21dc724a0583619cd1652f673303492272778051",
+                "reference": "21dc724a0583619cd1652f673303492272778051",
                 "shasum": ""
             },
             "require": {
@@ -425,8 +623,8 @@
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "http-interop/http-factory-tests": "^0.9",
-                "phpunit/phpunit": "^8.5.36 || ^9.6.15"
+                "http-interop/http-factory-tests": "0.9.0",
+                "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
             "suggest": {
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
@@ -498,7 +696,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.6"
+                "source": "https://github.com/guzzle/psr7/tree/2.8.0"
             },
             "funding": [
                 {
@@ -514,7 +712,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-31T10:09:24+00:00"
+            "time": "2025-08-23T21:21:41+00:00"
         },
         {
             "name": "psr/cache",
@@ -778,6 +976,57 @@
             "time": "2021-05-03T11:20:27+00:00"
         },
         {
+            "name": "psr/simple-cache",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/simple-cache.git",
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\SimpleCache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interfaces for simple caching",
+            "keywords": [
+                "cache",
+                "caching",
+                "psr",
+                "psr-16",
+                "simple-cache"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/simple-cache/tree/master"
+            },
+            "time": "2017-10-23T01:57:42+00:00"
+        },
+        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -822,17 +1071,233 @@
             "time": "2019-03-08T08:55:37+00:00"
         },
         {
+            "name": "snicco/better-wp-api",
+            "version": "v1.10.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/snicco/better-wp-api.git",
+                "reference": "713f7ad6b82bc5f821a600afb3c1762026b38ae6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/snicco/better-wp-api/zipball/713f7ad6b82bc5f821a600afb3c1762026b38ae6",
+                "reference": "713f7ad6b82bc5f821a600afb3c1762026b38ae6",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4|^8.0"
+            },
+            "conflict": {
+                "snicco/better-wp-cache": "<1.10.1",
+                "snicco/better-wp-cache-bundle": "<1.10.1",
+                "snicco/better-wp-cli": "<1.10.1",
+                "snicco/better-wp-cli-testing": "<1.10.1",
+                "snicco/better-wp-hooks": "<1.10.1",
+                "snicco/better-wp-hooks-bundle": "<1.10.1",
+                "snicco/better-wp-mail": "<1.10.1",
+                "snicco/better-wp-mail-bundle": "<1.10.1",
+                "snicco/better-wp-mail-testing": "<1.10.1",
+                "snicco/better-wpdb": "<1.10.1",
+                "snicco/better-wpdb-bundle": "<1.10.1",
+                "snicco/blade-bridge": "<1.10.1",
+                "snicco/blade-bundle": "<1.10.1",
+                "snicco/content-negotiation-middleware": "<1.10.1",
+                "snicco/debug-bundle": "<1.10.1",
+                "snicco/default-headers-middleware": "<1.10.1",
+                "snicco/eloquent": "<1.10.1",
+                "snicco/encryption-bundle": "<1.10.1",
+                "snicco/event-dispatcher": "<1.10.1",
+                "snicco/event-dispatcher-testing": "<1.10.1",
+                "snicco/guests-only-middleware": "<1.0.0",
+                "snicco/http-routing": "<1.10.1",
+                "snicco/http-routing-bundle": "<1.10.1",
+                "snicco/http-routing-testing": "<1.10.1",
+                "snicco/https-only-middleware": "<1.10.1",
+                "snicco/illuminate-container-bridge": "<1.10.1",
+                "snicco/kernel": "<1.10.1",
+                "snicco/kernel-testing": "<1.10.1",
+                "snicco/method-override-middleware": "<1.10.1",
+                "snicco/minimal-logger": "<1.10.1",
+                "snicco/must-match-route-middleware": "<1.10.1",
+                "snicco/no-robots-middleware": "<1.10.1",
+                "snicco/open-redirect-protection-middleware": "<1.10.1",
+                "snicco/payload-middleware": "<1.10.1",
+                "snicco/pimple-bridge": "<1.10.1",
+                "snicco/psr7-error-handler": "<1.10.1",
+                "snicco/redirect-middleware": "<1.10.1",
+                "snicco/session": "<1.10.1",
+                "snicco/session-bundle": "<1.10.1",
+                "snicco/session-psr16-bridge": "<1.10.1",
+                "snicco/session-testing": "<1.10.1",
+                "snicco/session-wp-bridge": "<1.10.1",
+                "snicco/share-cookies-middleware": "<1.10.1",
+                "snicco/signed-url": "<1.10.1",
+                "snicco/signed-url-psr15-bridge": "<1.10.1",
+                "snicco/signed-url-psr16-bridge": "<1.10.1",
+                "snicco/signed-url-testing": "<1.10.1",
+                "snicco/signed-url-wp-bridge": "<1.10.1",
+                "snicco/str-arr": "<1.10.1",
+                "snicco/templating": "<1.10.1",
+                "snicco/templating-bundle": "<1.10.1",
+                "snicco/testable-clock": "<1.10.1",
+                "snicco/testing-bundle": "<1.10.1",
+                "snicco/trailing-slash-middleware": "<1.10.1",
+                "snicco/wp-auth-only-middleware": "<1.10.1",
+                "snicco/wp-capability-middleware": "<1.10.1",
+                "snicco/wp-capapility-middleware": "<1.0.0",
+                "snicco/wp-guests-only-middleware": "<1.10.1",
+                "snicco/wp-nonce-middleware": "<1.10.1"
+            },
+            "require-dev": {
+                "codeception/codeception": "^4.1.29",
+                "lucatume/wp-browser": "~3.1.4",
+                "phpunit/phpunit": "^9.5.13"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Snicco\\Component\\BetterWPAPI\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Calvin Alkan",
+                    "email": "calvin@snicco.de"
+                }
+            ],
+            "description": "This small package tries to solve the pain point of not being able to solve to scope code that references WordPress core code.",
+            "support": {
+                "source": "https://github.com/snicco/better-wp-api/tree/v1.10.1"
+            },
+            "time": "2024-09-03T19:21:39+00:00"
+        },
+        {
+            "name": "snicco/better-wp-cache",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/snicco/better-wp-cache.git",
+                "reference": "d41438f414fabf4737eda324424e9cad9444a38b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/snicco/better-wp-cache/zipball/d41438f414fabf4737eda324424e9cad9444a38b",
+                "reference": "d41438f414fabf4737eda324424e9cad9444a38b",
+                "shasum": ""
+            },
+            "require": {
+                "cache/simple-cache-bridge": "^1.2.0",
+                "cache/tag-interop": "^1.1",
+                "cache/taggable-cache": "1.2.0",
+                "php": "^7.4|^8.0",
+                "psr/cache": "^1.0.0",
+                "psr/simple-cache": "^1.0.0",
+                "snicco/better-wp-api": "^1.10.1"
+            },
+            "conflict": {
+                "snicco/better-wp-cache-bundle": "<1.10.1",
+                "snicco/better-wp-cli": "<1.10.1",
+                "snicco/better-wp-cli-testing": "<1.10.1",
+                "snicco/better-wp-hooks": "<1.10.1",
+                "snicco/better-wp-hooks-bundle": "<1.10.1",
+                "snicco/better-wp-mail": "<1.10.1",
+                "snicco/better-wp-mail-bundle": "<1.10.1",
+                "snicco/better-wp-mail-testing": "<1.10.1",
+                "snicco/better-wpdb": "<1.10.1",
+                "snicco/better-wpdb-bundle": "<1.10.1",
+                "snicco/blade-bridge": "<1.10.1",
+                "snicco/blade-bundle": "<1.10.1",
+                "snicco/content-negotiation-middleware": "<1.10.1",
+                "snicco/debug-bundle": "<1.10.1",
+                "snicco/default-headers-middleware": "<1.10.1",
+                "snicco/eloquent": "<1.10.1",
+                "snicco/encryption-bundle": "<1.10.1",
+                "snicco/event-dispatcher": "<1.10.1",
+                "snicco/event-dispatcher-testing": "<1.10.1",
+                "snicco/guests-only-middleware": "<1.0.0",
+                "snicco/http-routing": "<1.10.1",
+                "snicco/http-routing-bundle": "<1.10.1",
+                "snicco/http-routing-testing": "<1.10.1",
+                "snicco/https-only-middleware": "<1.10.1",
+                "snicco/illuminate-container-bridge": "<1.10.1",
+                "snicco/kernel": "<1.10.1",
+                "snicco/kernel-testing": "<1.10.1",
+                "snicco/method-override-middleware": "<1.10.1",
+                "snicco/minimal-logger": "<1.10.1",
+                "snicco/must-match-route-middleware": "<1.10.1",
+                "snicco/no-robots-middleware": "<1.10.1",
+                "snicco/open-redirect-protection-middleware": "<1.10.1",
+                "snicco/payload-middleware": "<1.10.1",
+                "snicco/pimple-bridge": "<1.10.1",
+                "snicco/psr7-error-handler": "<1.10.1",
+                "snicco/redirect-middleware": "<1.10.1",
+                "snicco/session": "<1.10.1",
+                "snicco/session-bundle": "<1.10.1",
+                "snicco/session-psr16-bridge": "<1.10.1",
+                "snicco/session-testing": "<1.10.1",
+                "snicco/session-wp-bridge": "<1.10.1",
+                "snicco/share-cookies-middleware": "<1.10.1",
+                "snicco/signed-url": "<1.10.1",
+                "snicco/signed-url-psr15-bridge": "<1.10.1",
+                "snicco/signed-url-psr16-bridge": "<1.10.1",
+                "snicco/signed-url-testing": "<1.10.1",
+                "snicco/signed-url-wp-bridge": "<1.10.1",
+                "snicco/str-arr": "<1.10.1",
+                "snicco/templating": "<1.10.1",
+                "snicco/templating-bundle": "<1.10.1",
+                "snicco/testable-clock": "<1.10.1",
+                "snicco/testing-bundle": "<1.10.1",
+                "snicco/trailing-slash-middleware": "<1.10.1",
+                "snicco/wp-auth-only-middleware": "<1.10.1",
+                "snicco/wp-capability-middleware": "<1.10.1",
+                "snicco/wp-capapility-middleware": "<1.0.0",
+                "snicco/wp-guests-only-middleware": "<1.10.1",
+                "snicco/wp-nonce-middleware": "<1.10.1"
+            },
+            "require-dev": {
+                "cache/integration-tests": "0.17.0",
+                "codeception/codeception": "^4.1.29",
+                "lucatume/wp-browser": "~3.1.4",
+                "phpunit/phpunit": "^9.5.13"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Snicco\\Component\\BetterWPCache\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Calvin Alkan",
+                    "email": "calvin@snicco.de"
+                }
+            ],
+            "support": {
+                "source": "https://github.com/snicco/better-wp-cache/tree/v1.10.1"
+            },
+            "time": "2024-09-03T19:21:45+00:00"
+        },
+        {
             "name": "symfony/deprecation-contracts",
             "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1"
+                "reference": "bbd66f9d55454b9b7a66a9cebe77523806a3288a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
-                "reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/bbd66f9d55454b9b7a66a9cebe77523806a3288a",
+                "reference": "bbd66f9d55454b9b7a66a9cebe77523806a3288a",
                 "shasum": ""
             },
             "require": {
@@ -841,12 +1306,12 @@
             "default-branch": true,
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-main": "3.5-dev"
-                },
                 "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
+                "branch-alias": {
+                    "dev-main": "3.7-dev"
                 }
             },
             "autoload": {
@@ -871,7 +1336,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.5.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/main"
             },
             "funding": [
                 {
@@ -883,11 +1348,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-18T09:32:20+00:00"
+            "time": "2026-01-05T13:30:16+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
@@ -895,23 +1364,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433"
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/77fa7995ac1b21ab60769b7323d600a991a90433",
-                "reference": "77fa7995ac1b21ab60769b7323d600a991a90433",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
+                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1"
+                "php": ">=7.2"
             },
             "default-branch": true,
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -952,7 +1421,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.30.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -964,22 +1433,26 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-05-31T15:07:36+00:00"
+            "time": "2025-01-02T08:10:11+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alexacrm/dynamics-webapi-toolkit": 20
+        "snicco/better-wp-cache": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
