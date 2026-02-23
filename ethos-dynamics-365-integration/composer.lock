@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "280376575b29654c3dacb6d3a9f49dfb",
+    "content-hash": "e9ddd45aae8b25b3841a5b3301f6f2cf",
     "packages": [
         {
             "name": "alexacrm/dynamics-webapi-toolkit",
-            "version": "4.2.0",
+            "version": "v4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexaCRM/dynamics-webapi-toolkit.git",
-                "reference": "b32a543d37e8d083895dc5478b41d5aa6680e341"
+                "reference": "b75cf2cc3a6b02a11a931a65d90526b97c6c13fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexaCRM/dynamics-webapi-toolkit/zipball/b32a543d37e8d083895dc5478b41d5aa6680e341",
-                "reference": "b32a543d37e8d083895dc5478b41d5aa6680e341",
+                "url": "https://api.github.com/repos/AlexaCRM/dynamics-webapi-toolkit/zipball/b75cf2cc3a6b02a11a931a65d90526b97c6c13fb",
+                "reference": "b75cf2cc3a6b02a11a931a65d90526b97c6c13fb",
                 "shasum": ""
             },
             "require": {
@@ -50,9 +50,9 @@
             "description": "Web API toolkit for Microsoft Dataverse and Dynamics 365",
             "support": {
                 "issues": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/issues",
-                "source": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/tree/4.2.0"
+                "source": "https://github.com/AlexaCRM/dynamics-webapi-toolkit/tree/v4"
             },
-            "time": "2025-06-17T12:59:47+00:00"
+            "time": "2026-01-27T12:31:51+00:00"
         },
         {
             "name": "alexacrm/strong-serializer",
@@ -1448,6 +1448,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alexacrm/dynamics-webapi-toolkit": 20,
         "snicco/better-wp-cache": 20
     },
     "prefer-stable": false,

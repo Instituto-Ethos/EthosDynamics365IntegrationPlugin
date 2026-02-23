@@ -3,7 +3,7 @@
     "description": "Plugin para conectar Dynamics 365 com WordPress.",
     "type": "wordpress-plugin",
     "require": {
-        "alexacrm/dynamics-webapi-toolkit": "4.2.0",
+        "alexacrm/dynamics-webapi-toolkit": "v4.x-dev",
         "snicco/better-wp-cache": "dev-master"
     },
     "license": "GPL-2.0",
