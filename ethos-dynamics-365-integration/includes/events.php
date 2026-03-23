@@ -166,6 +166,8 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
         }
     }
 
+    delete_post_meta( $post_id, '_ethos:event_status' );
+
     /**
      * Updates the post content for an event if the 'fut_txt_descricao' attribute is set and the post content has not been updated before.
      */
