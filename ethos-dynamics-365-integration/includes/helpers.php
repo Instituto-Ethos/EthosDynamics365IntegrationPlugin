@@ -405,64 +405,59 @@ function format_cnpj($cnpj) {
 }
 
 /**
- * Format a CPF number.
+ * Detects if a post field (content or title) has been manually updated in WordPress.
+ * Compares MD5 hash of the current field value with the stored hash.
+ * During CRM sync, only stores the baseline hash without triggering the lock.
  *
- * @param string $cpf The CPF number to format.
- * @return string The formatted CPF number.
- */
-function format_cpf($cpf) {
-    $cpf = preg_replace('/\D/', '', $cpf);
-
-    if (strlen($cpf) !== 11) {
-        return __('Invalid CPF number', 'hacklabr');
-    }
-
-    $cpf_masked = preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
-
-    return $cpf_masked;
-}
-
-/**
- * Updates the post content metadata when the content of a 'tribe_events' post has changed.
- *
- * @version   0.0.1
+ * @version   0.0.2
  * @since     0.6.2
- * @param int $post_id The ID of the post that was saved.
+ * @param int    $post_id The ID of the post that was saved.
+ * @param string $field   The field to check: 'post_content' or 'post_title'.
+ * @param string $prefix  The meta key prefix: '_ethos_content' or '_ethos_title'.
  */
-function events_content_has_updated( $post_id ) {
+function events_field_has_updated( $post_id, string $field, string $prefix ) {
     if ( wp_is_post_revision( $post_id ) ) {
         return;
     }
 
-    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+    $field_updated = get_post_meta( $post_id, $prefix . '_updated', true );
+
+    if ( $field_updated ) {
         return;
     }
 
-    $content_updated = get_post_meta( $post_id, '_ethos_content_updated', true );
+    if ( $field === 'post_title' ) {
+        $field_value = get_the_title( $post_id );
+    } else {
+        $field_value = get_post_field( $field, $post_id );
+    }
 
-    if ( $content_updated ) {
+    $field_md5 = md5( $field_value );
+    $stored_md5 = get_post_meta( $post_id, $prefix . '_md5', true );
+
+    if ( ! empty( $GLOBALS['_ethos_crm_syncing'] ) ) {
+        if ( ! empty( $field_value ) ) {
+            update_post_meta( $post_id, $prefix . '_md5', $field_md5 );
+        }
         return;
     }
 
-    $post_content = get_post_field( 'post_content', $post_id );
-    $post_content_md5 = md5( $post_content );
-
-    $stored_post_content_md5 = get_post_meta( $post_id, '_ethos_content_md5', true );
-
-    if ( ! empty( $post_content_md5 ) && ! empty( $stored_post_content_md5 ) ) {
-        if ( $post_content_md5 !== $stored_post_content_md5 ) {
-            update_post_meta( $post_id, '_ethos_content_updated', true );
-            delete_post_meta( $post_id, '_ethos_content_md5' );
+    if ( ! empty( $field_md5 ) && ! empty( $stored_md5 ) ) {
+        if ( $field_md5 !== $stored_md5 ) {
+            update_post_meta( $post_id, $prefix . '_updated', true );
+            delete_post_meta( $post_id, $prefix . '_md5' );
         }
     }
 
-    if ( ! empty( $post_content_md5 ) && empty( $stored_post_content_md5 ) ) {
-        update_post_meta( $post_id, '_ethos_content_md5', $post_content_md5 );
+    if ( ! empty( $field_md5 ) && empty( $stored_md5 ) ) {
+        update_post_meta( $post_id, $prefix . '_md5', $field_md5 );
     }
-
 }
 
-add_action( 'save_post_tribe_events', 'hacklabr\events_content_has_updated' );
+add_action( 'save_post_tribe_events', function ( $post_id ) {
+    events_field_has_updated( $post_id, 'post_content', '_ethos_content' );
+    events_field_has_updated( $post_id, 'post_title', '_ethos_title' );
+} );
 
 /**
  * Logs data if the 'logger' parameter is set in the URL and the current user has the 'manage_options' capability.

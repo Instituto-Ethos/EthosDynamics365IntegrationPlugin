@@ -129,63 +129,70 @@ function update_event_on_wp( int $post_id, Entity $entity ) {
         }
     }
 
-    $start_date = format_iso8601_to_events( $attributes['fut_dt_realizacao'] );
-    $end_date   = format_iso8601_to_events( $attributes['fut_dt_dataehoratermino'] );
-    $title      = $attributes['fut_name'] ?? '';
-    $url        = $attributes['fut_st_website'] ?? '';
-    $cost       = $attributes['fut_valorinscricao'] ?? '';
+    $GLOBALS['_ethos_crm_syncing'] = true;
 
-    $args = [
-        'EventCost'               => format_currency_value( $cost ),
-        'EventCurrencyCode'       => 'BRL',
-        'EventCurrencyPosition'   => 'prefix',
-        'EventCurrencySymbol'     => 'R$',
-        'EventDateTimeSeparator'  => ' @ ',
-        'EventEndDate'            => $end_date['EventDate'],
-        'EventEndHour'            => $end_date['EventHour'],
-        'EventEndMeridian'        => $end_date['EventMeridian'],
-        'EventEndMinute'          => $end_date['EventMinute'],
-        'EventStartDate'          => $start_date['EventDate'],
-        'EventStartHour'          => $start_date['EventHour'],
-        'EventStartMeridian'      => $start_date['EventMeridian'],
-        'EventStartMinute'        => $start_date['EventMinute'],
-        'EventTimeRangeSeparator' => ' - ',
-        'EventTimezone'           => 'UTC-3',
-        'EventURL'                => $url,
-        'post_title'              => $title,
-    ];
+    try {
+        $start_date = format_iso8601_to_events( $attributes['fut_dt_realizacao'] );
+        $end_date   = format_iso8601_to_events( $attributes['fut_dt_dataehoratermino'] );
+        $title      = $attributes['fut_name'] ?? '';
+        $url        = $attributes['fut_st_website'] ?? '';
+        $cost       = $attributes['fut_valorinscricao'] ?? '';
 
-    $args = array_filter( $args );
-    $result = \Tribe__Events__API::updateEvent( $post_id, $args );
+        $title_updated = get_post_meta( $post_id, '_ethos_title_updated', true );
 
-    foreach ( $attributes as $key => $value ) {
-        $meta_key = '_ethos_crm:' . $key;
-        $meta_value = format_meta_value( $value );
-        if ( $meta_value !== null ) {
-            update_post_meta( $result, $meta_key, $meta_value );
+        $args = [
+            'EventCost'               => format_currency_value( $cost ),
+            'EventCurrencyCode'       => 'BRL',
+            'EventCurrencyPosition'   => 'prefix',
+            'EventCurrencySymbol'     => 'R$',
+            'EventDateTimeSeparator'  => ' @ ',
+            'EventEndDate'            => $end_date['EventDate'],
+            'EventEndHour'            => $end_date['EventHour'],
+            'EventEndMeridian'        => $end_date['EventMeridian'],
+            'EventEndMinute'          => $end_date['EventMinute'],
+            'EventStartDate'          => $start_date['EventDate'],
+            'EventStartHour'          => $start_date['EventHour'],
+            'EventStartMeridian'      => $start_date['EventMeridian'],
+            'EventStartMinute'        => $start_date['EventMinute'],
+            'EventTimeRangeSeparator' => ' - ',
+            'EventTimezone'           => 'UTC-3',
+            'EventURL'                => $url,
+        ];
+
+        if ( ! $title_updated ) {
+            $args['post_title'] = $title;
         }
-    }
 
-    delete_post_meta( $post_id, '_ethos:event_status' );
+        $args = array_filter( $args );
+        $result = \Tribe__Events__API::updateEvent( $post_id, $args );
 
-    /**
-     * Updates the post content for an event if the 'fut_txt_descricao' attribute is set and the post content has not been updated before.
-     */
-    if ( isset( $attributes['fut_txt_descricao'] ) ) {
-        $content_updated = get_post_meta( $post_id, '_ethos_content_updated', true );
-
-        if ( ! $content_updated ) {
-            $post_content = $attributes['fut_txt_descricao'];
-
-            wp_update_post( [
-                'ID'           => $post_id,
-                'post_content' => $post_content
-            ] );
+        foreach ( $attributes as $key => $value ) {
+            $meta_key = '_ethos_crm:' . $key;
+            $meta_value = format_meta_value( $value );
+            if ( $meta_value !== null ) {
+                update_post_meta( $result, $meta_key, $meta_value );
+            }
         }
-    }
 
-    // Update the 'updated_on_wp' meta field with the current time to indicate that the event was updated on WordPress.
-    update_post_meta( $post_id, '_ethos_crm:updated_on_wp', current_time( 'mysql' ) );
+        delete_post_meta( $post_id, '_ethos:event_status' );
+
+        if ( isset( $attributes['fut_txt_descricao'] ) ) {
+            $content_updated = get_post_meta( $post_id, '_ethos_content_updated', true );
+
+            if ( ! $content_updated ) {
+                $post_content = $attributes['fut_txt_descricao'];
+
+                wp_update_post( [
+                    'ID'           => $post_id,
+                    'post_content' => $post_content
+                ] );
+            }
+        }
+
+        update_post_meta( $post_id, '_ethos_crm:updated_on_wp', current_time( 'mysql' ) );
+    } finally {
+        unset( $GLOBALS['_ethos_crm_syncing'] );
+    }
 
     return $result;
 }
