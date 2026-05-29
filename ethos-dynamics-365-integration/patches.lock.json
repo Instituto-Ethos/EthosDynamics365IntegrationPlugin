@@ -1,0 +1,17 @@
+{
+    "_hash": "3978790cd5cc7eea7db7132baddbdae9167651c2beda038c8097c2e1671bce9f",
+    "patches": {
+        "alexacrm/dynamics-webapi-toolkit": [
+            {
+                "package": "alexacrm/dynamics-webapi-toolkit",
+                "description": "Fix NullCacheItem compatibility with psr/cache 1.x",
+                "url": "patches/nullcacheitem-psr6-v1-compat.patch",
+                "sha256": "d31b9bc316f791d12c1ed4cb142931c98550a7729b4441b27f6d6d318664c86a",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

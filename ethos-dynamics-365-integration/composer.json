@@ -4,7 +4,8 @@
     "type": "wordpress-plugin",
     "require": {
         "alexacrm/dynamics-webapi-toolkit": "v4.x-dev",
-        "snicco/better-wp-cache": "dev-master"
+        "snicco/better-wp-cache": "dev-master",
+        "cweagans/composer-patches": "dev-main"
     },
     "license": "GPL-2.0",
     "autoload": {
@@ -12,5 +13,17 @@
             "EthosDynamics365Integration\\": "src/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "extra": {
+        "patches": {
+            "alexacrm/dynamics-webapi-toolkit": {
+                "Fix NullCacheItem compatibility with psr/cache 1.x": "patches/nullcacheitem-psr6-v1-compat.patch"
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "cweagans/composer-patches": true
+        }
+    }
 }

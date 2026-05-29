@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9ddd45aae8b25b3841a5b3301f6f2cf",
+    "content-hash": "8f6e05b3b3a1a1a4bcba3e16384ff692",
     "packages": [
         {
             "name": "alexacrm/dynamics-webapi-toolkit",
@@ -294,6 +294,130 @@
             "time": "2022-01-15T15:47:19+00:00"
         },
         {
+            "name": "cweagans/composer-configurable-plugin",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cweagans/composer-configurable-plugin.git",
+                "reference": "15433906511a108a1806710e988629fd24b89974"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cweagans/composer-configurable-plugin/zipball/15433906511a108a1806710e988629fd24b89974",
+                "reference": "15433906511a108a1806710e988629fd24b89974",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "~4.0",
+                "codeception/module-asserts": "^2.0",
+                "composer/composer": "~2.0",
+                "php-coveralls/php-coveralls": "~2.0",
+                "php-parallel-lint/php-parallel-lint": "^1.0.0",
+                "phpro/grumphp": "^1.8.0",
+                "sebastian/phpcpd": "^6.0",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "cweagans\\Composer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Cameron Eagans",
+                    "email": "me@cweagans.net"
+                }
+            ],
+            "description": "Provides a lightweight configuration system for Composer plugins.",
+            "support": {
+                "issues": "https://github.com/cweagans/composer-configurable-plugin/issues",
+                "source": "https://github.com/cweagans/composer-configurable-plugin/tree/2.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/cweagans",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-02-12T04:58:58+00:00"
+        },
+        {
+            "name": "cweagans/composer-patches",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cweagans/composer-patches.git",
+                "reference": "7f944504d8289f42470c877d4d4ddb504ab8d91d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/7f944504d8289f42470c877d4d4ddb504ab8d91d",
+                "reference": "7f944504d8289f42470c877d4d4ddb504ab8d91d",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^2.0",
+                "cweagans/composer-configurable-plugin": "^2.0",
+                "ext-json": "*",
+                "php": ">=8.0.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "~4.0",
+                "codeception/module-asserts": "^2.0",
+                "codeception/module-cli": "^2.0",
+                "codeception/module-filesystem": "^2.0",
+                "composer/composer": "~2.0",
+                "php-coveralls/php-coveralls": "~2.0",
+                "php-parallel-lint/php-parallel-lint": "^1.0.0",
+                "phpro/grumphp": "^1.8.0",
+                "sebastian/phpcpd": "^6.0",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "default-branch": true,
+            "type": "composer-plugin",
+            "extra": {
+                "_": "The following two lines ensure that composer-patches is loaded as early as possible.",
+                "class": "cweagans\\Composer\\Plugin\\Patches",
+                "plugin-modifies-downloads": true,
+                "plugin-modifies-install-path": true
+            },
+            "autoload": {
+                "psr-4": {
+                    "cweagans\\Composer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Cameron Eagans",
+                    "email": "me@cweagans.net"
+                }
+            ],
+            "description": "Provides a way to patch Composer packages.",
+            "support": {
+                "issues": "https://github.com/cweagans/composer-patches/issues",
+                "source": "https://github.com/cweagans/composer-patches/tree/main"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/cweagans",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-05-28T00:40:00+00:00"
+        },
+        {
             "name": "elao/enum",
             "version": "1.x-dev",
             "source": {
@@ -392,21 +516,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "1b7b0e4f4e84e37b14306921f63f15c16f84f171"
+                "reference": "234f49c89c8c7dc843be56ea1d1ab507dcd8e57e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/1b7b0e4f4e84e37b14306921f63f15c16f84f171",
-                "reference": "1b7b0e4f4e84e37b14306921f63f15c16f84f171",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/234f49c89c8c7dc843be56ea1d1ab507dcd8e57e",
+                "reference": "234f49c89c8c7dc843be56ea1d1ab507dcd8e57e",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "guzzlehttp/promises": "^2.3",
-                "guzzlehttp/psr7": "^2.10",
+                "guzzlehttp/psr7": "^2.10.1",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
-                "symfony/deprecation-contracts": "^2.2 || ^3.0"
+                "symfony/deprecation-contracts": "^2.2 || ^3.0",
+                "symfony/polyfill-php80": "^1.24"
             },
             "provide": {
                 "psr/http-client-implementation": "1.0"
@@ -415,7 +540,7 @@
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "ext-curl": "*",
                 "guzzle/client-integration-tests": "3.0.2",
-                "guzzlehttp/test-server": "^0.3.2",
+                "guzzlehttp/test-server": "^0.4",
                 "php-http/message-factory": "^1.1",
                 "phpunit/phpunit": "^8.5.52 || ^9.6.34",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
@@ -511,30 +636,30 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-20T14:19:07+00:00"
+            "time": "2026-05-27T16:16:24+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.3.x-dev",
+            "version": "2.5.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "d084cd8c50ea856e777fbdf4955af88737328dbe"
+                "reference": "af08b046463108ee3b7184924bda82cab509c07c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/d084cd8c50ea856e777fbdf4955af88737328dbe",
-                "reference": "d084cd8c50ea856e777fbdf4955af88737328dbe",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/af08b046463108ee3b7184924bda82cab509c07c",
+                "reference": "af08b046463108ee3b7184924bda82cab509c07c",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2.5 || ^8.0"
+                "php": "^7.2.5 || ^8.0",
+                "symfony/deprecation-contracts": "^2.5 || ^3.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "phpunit/phpunit": "^8.5.52 || ^9.6.34"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -579,7 +704,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.3"
+                "source": "https://github.com/guzzle/promises/tree/2.5"
             },
             "funding": [
                 {
@@ -595,7 +720,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-19T19:08:38+00:00"
+            "time": "2026-05-24T21:15:33+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -603,12 +728,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "60b46c607824da04a695aa6b3c3faf4ae7c9567a"
+                "reference": "7853a2c8211637f5c58135064b259fa8693ffe41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/60b46c607824da04a695aa6b3c3faf4ae7c9567a",
-                "reference": "60b46c607824da04a695aa6b3c3faf4ae7c9567a",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/7853a2c8211637f5c58135064b259fa8693ffe41",
+                "reference": "7853a2c8211637f5c58135064b259fa8693ffe41",
                 "shasum": ""
             },
             "require": {
@@ -714,7 +839,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-20T13:13:59+00:00"
+            "time": "2026-05-27T23:52:06+00:00"
         },
         {
             "name": "psr/cache",
@@ -1452,6 +1577,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "alexacrm/dynamics-webapi-toolkit": 20,
+        "cweagans/composer-patches": 20,
         "snicco/better-wp-cache": 20
     },
     "prefer-stable": false,
