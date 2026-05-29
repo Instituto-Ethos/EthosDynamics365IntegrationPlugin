@@ -405,6 +405,24 @@ function format_cnpj($cnpj) {
 }
 
 /**
+ * Format a CPF number.
+ *
+ * @param string $cpf The CPF number to format.
+ * @return string The formatted CPF number.
+ */
+function format_cpf($cpf) {
+    $cpf = preg_replace('/\D/', '', $cpf);
+
+    if (strlen($cpf) !== 11) {
+        return __('Invalid CPF number', 'hacklabr');
+    }
+
+    $cpf_masked = preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
+
+    return $cpf_masked;
+}
+
+/**
  * Detects if a post field (content or title) has been manually updated in WordPress.
  * Compares MD5 hash of the current field value with the stored hash.
  * During CRM sync, only stores the baseline hash without triggering the lock.
