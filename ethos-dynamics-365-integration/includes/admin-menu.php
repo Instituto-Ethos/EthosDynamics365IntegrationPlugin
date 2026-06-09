@@ -138,6 +138,90 @@ function sync_settings_render() {
             submit_button();
             ?>
         </form>
+
+        <hr />
+
+        <h2>Ações manuais</h2>
+        <p>
+            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=run_reconciliation' ), 'run_reconciliation' ) ); ?>" class="button button-secondary">
+                Executar reconciliação
+            </a>
+            <span class="description">Move para a lixeira organizações ativas no WP que não existem mais no CRM.</span>
+        </p>
+        <p>
+            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=run_deduplication' ), 'run_deduplication' ) ); ?>" class="button button-secondary">
+                Deduplicar organizações
+            </a>
+            <span class="description">Remove duplicatas mantendo apenas o post mais recente por Account ID.</span>
+        </p>
+        <p>
+            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=fix_orphaned_events' ), 'fix_orphaned_events' ) ); ?>" class="button button-secondary">
+                Corrigir eventos orfãos
+            </a>
+            <span class="description">Recria registros na custom table do TEC para eventos sem entrada em wp_tec_events (batch de 10 por tick de 5min).</span>
+        </p>
+
+        <?php
+        if ( isset( $_GET['fix_orphaned_events'] ) && intval( $_GET['fix_orphaned_events'] ) === 1 ) {
+            echo '<div class="notice notice-success is-dismissible"><p>Job de correcao de eventos orfaos enfileirado. Acompanhe o progresso em Ferramentas > WP Logger.</p></div>';
+        }
+        ?>
+
+        <?php
+        $last_recon = get_option( '_ethos_last_reconciliation' );
+        if ( ! empty( $last_recon ) ) :
+        ?>
+        <h3>Última reconciliação</h3>
+        <table class="widefat striped">
+            <tr><th>Data/hora</th><td><?php echo esc_html( $last_recon['datetime'] ?? '' ); ?></td></tr>
+            <tr><th>Organizações no WP</th><td><?php echo (int) ( $last_recon['total_wp'] ?? 0 ); ?></td></tr>
+            <tr><th>Organizações no CRM</th><td><?php echo (int) ( $last_recon['total_crm'] ?? 0 ); ?></td></tr>
+            <tr><th>Movidas para lixeira</th><td><?php echo (int) ( $last_recon['trashed'] ?? 0 ); ?></td></tr>
+        </table>
+        <?php if ( ! empty( $last_recon['orphans'] ) ) : ?>
+        <h4>Organizações removidas</h4>
+        <table class="widefat">
+            <thead><tr><th>Post ID</th><th>Nome</th><th>Account ID</th></tr></thead>
+            <tbody>
+            <?php foreach ( $last_recon['orphans'] as $orphan ) : ?>
+                <tr>
+                    <td><?php echo (int) $orphan['post_id']; ?></td>
+                    <td><?php echo esc_html( $orphan['post_title'] ); ?></td>
+                    <td><code><?php echo esc_html( $orphan['account_id'] ); ?></code></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+        <?php endif; ?>
+
+        <?php
+        $last_dedup = get_option( '_ethos_last_deduplication' );
+        if ( ! empty( $last_dedup ) ) :
+        ?>
+        <h3>Última deduplicação</h3>
+        <table class="widefat striped">
+            <tr><th>Data/hora</th><td><?php echo esc_html( $last_dedup['datetime'] ?? '' ); ?></td></tr>
+            <tr><th>Grupos duplicados</th><td><?php echo (int) ( $last_dedup['duplicates'] ?? 0 ); ?></td></tr>
+            <tr><th>Posts removidos</th><td><?php echo (int) ( $last_dedup['trashed'] ?? 0 ); ?></td></tr>
+        </table>
+        <?php if ( ! empty( $last_dedup['groups'] ) ) : ?>
+        <h4>Detalhes por grupo</h4>
+        <table class="widefat">
+            <thead><tr><th>Account ID</th><th>Post mantido</th><th>Posts removidos</th></tr></thead>
+            <tbody>
+            <?php foreach ( $last_dedup['groups'] as $group ) : ?>
+                <tr>
+                    <td><code><?php echo esc_html( $group['account_id'] ); ?></code></td>
+                    <td><?php echo (int) $group['kept']; ?></td>
+                    <td><?php echo esc_html( implode( ', ', $group['trashed_ids'] ?? [] ) ); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php endif; ?>
+        <?php endif; ?>
+
     </div>
     <?php
 }
@@ -166,4 +250,48 @@ function sync_user_field_callback() {
     $systemuser = get_option( 'systemuser' );
     echo '<input type="text" name="systemuser" value="' . esc_attr( $systemuser ) . '" />';
 }
+
+function handle_run_reconciliation() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Unauthorized' );
+    }
+
+    check_admin_referer( 'run_reconciliation' );
+
+    \ethos\crm\run_reconciliation();
+
+    wp_safe_redirect( admin_url( 'options-general.php?page=sync-settings' ) );
+    exit;
+}
+add_action( 'admin_post_run_reconciliation', 'hacklabr\\handle_run_reconciliation' );
+
+function handle_run_deduplication() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Unauthorized' );
+    }
+
+    check_admin_referer( 'run_deduplication' );
+
+    \ethos\crm\run_deduplication();
+
+    wp_safe_redirect( admin_url( 'options-general.php?page=sync-settings' ) );
+    exit;
+}
+add_action( 'admin_post_run_deduplication', 'hacklabr\\handle_run_deduplication' );
+
+function handle_fix_orphaned_events() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Unauthorized' );
+    }
+
+    check_admin_referer( 'fix_orphaned_events' );
+
+    \ethos\crm\ensure_jobs_table();
+    \ethos\crm\schedule_job( 'fix_orphaned_events', '' );
+    do_action( 'logger', 'fix_orphaned_events: Job enfileirado via admin - iniciando correcao.', 'info' );
+
+    wp_safe_redirect( admin_url( 'options-general.php?page=sync-settings&fix_orphaned_events=1' ) );
+    exit;
+}
+add_action( 'admin_post_fix_orphaned_events', 'hacklabr\\handle_fix_orphaned_events' );
 

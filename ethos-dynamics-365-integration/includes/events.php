@@ -269,6 +269,12 @@ function do_get_crm_event( string $fut_projeto_id ) {
                 'file'    => __FILE__,
                 'line'    => __LINE__
             ] );
+        } else {
+            get_logger( [
+                'message' => "Falha ao criar evento. fut_projeto_id: $fut_projeto_id",
+                'file'    => __FILE__,
+                'line'    => __LINE__
+            ] );
         }
         return $result;
     }
