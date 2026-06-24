@@ -222,6 +222,53 @@ function sync_settings_render() {
         <?php endif; ?>
         <?php endif; ?>
 
+        <?php
+        $orphaned_events = \hacklabr\get_orphaned_events_list();
+        if ( ! empty( $orphaned_events ) ) :
+        ?>
+        <hr />
+        <h3>Eventos com problema (404 na single)</h3>
+        <p class="description">
+            <?php printf( esc_html__( '%d evento(s) publicado(s) sem registro na custom table do TEC. Essas singles retornam 404.', 'hacklabr' ), count( $orphaned_events ) ); ?>
+        </p>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Data do evento</th>
+                    <th>Entity ID</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ( $orphaned_events as $event ) :
+                $edit_url  = get_edit_post_link( $event->ID );
+                $view_url  = get_permalink( $event->ID );
+                $entity_id = get_post_meta( $event->ID, 'entity_fut_projeto', true );
+                $start     = get_post_meta( $event->ID, '_EventStartDate', true );
+            ?>
+                <tr>
+                    <td><?php echo (int) $event->ID; ?></td>
+                    <td><?php echo esc_html( $event->post_title ); ?></td>
+                    <td><?php echo esc_html( $start ?: '—' ); ?></td>
+                    <td><code><?php echo esc_html( $entity_id ?: '—' ); ?></code></td>
+                    <td>
+                        <?php if ( $edit_url ) : ?>
+                            <a href="<?php echo esc_url( $edit_url ); ?>" class="button button-small">Editar</a>
+                        <?php endif; ?>
+                        <a href="<?php echo esc_url( $view_url ); ?>" class="button button-small" target="_blank">Ver single</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php elseif ( isset( $_GET['page'] ) && $_GET['page'] === 'sync-settings' ) : ?>
+        <hr />
+        <h3>Eventos com problema (404 na single)</h3>
+        <p class="description">Nenhum evento órfão encontrado. Todos os eventos possuem registro na custom table do TEC.</p>
+        <?php endif; ?>
+
     </div>
     <?php
 }

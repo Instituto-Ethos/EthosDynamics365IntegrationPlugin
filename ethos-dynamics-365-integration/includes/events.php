@@ -91,6 +91,33 @@ function create_event_on_wp( Entity $entity ) {
 
     if ( $result && ! is_wp_error( $result ) ) {
         update_post_meta( $result, 'entity_fut_projeto', $entity_id );
+
+        // Validate that TEC custom table entry was created.
+        global $wpdb;
+        $tec_row = $wpdb->get_var( $wpdb->prepare(
+            "SELECT event_id FROM {$wpdb->prefix}tec_events WHERE post_id = %d",
+            $result
+        ) );
+
+        if ( empty( $tec_row ) ) {
+            do_action( 'logger', sprintf(
+                'create_event_on_wp: Post %d sem registro em %stec_events. Tentando repair automatico...',
+                $result, $wpdb->prefix
+            ) );
+
+            try {
+                $events_service = tribe( \TEC\Events\Custom_Tables\V1\Updates\Events::class );
+                $repaired = $events_service->update( $result );
+
+                if ( $repaired ) {
+                    do_action( 'logger', "create_event_on_wp: Post {$result} reparado com sucesso.", 'info' );
+                } else {
+                    do_action( 'logger', "create_event_on_wp: Falha ao reparar Post {$result}.", 'error' );
+                }
+            } catch ( \Throwable $e ) {
+                do_action( 'logger', "create_event_on_wp: Excecao ao reparar Post {$result}: " . $e->getMessage(), 'error' );
+            }
+        }
     }
 
     foreach ( $attributes as $key => $value ) {
@@ -296,4 +323,32 @@ function do_get_crm_event( string $fut_projeto_id ) {
     }
 
     return $result;
+}
+
+/**
+ * Returns a list of published tribe_events that have no entry in the TEC custom
+ * table (wp_tec_events). These events will return 404 on their single pages.
+ *
+ * @return array Array of WP_Post-like objects with ID, post_title.
+ */
+function get_orphaned_events_list(): array {
+    global $wpdb;
+
+    $tec_table = $wpdb->prefix . 'tec_events';
+
+    // If TEC custom table does not exist, return empty.
+    if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $tec_table ) ) !== $tec_table ) {
+        return [];
+    }
+
+    return $wpdb->get_results( $wpdb->prepare(
+        "SELECT p.ID, p.post_title
+         FROM {$wpdb->posts} p
+         LEFT JOIN {$tec_table} te ON te.post_id = p.ID
+         WHERE p.post_type = %s
+           AND p.post_status = %s
+           AND te.event_id IS NULL
+         ORDER BY p.ID",
+        'tribe_events', 'publish'
+    ) );
 }
