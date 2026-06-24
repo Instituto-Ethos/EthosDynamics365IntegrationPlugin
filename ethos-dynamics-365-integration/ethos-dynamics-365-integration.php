@@ -21,7 +21,7 @@ function ethos_d365i_plugin_activate() {
 
 register_activation_hook( __FILE__, 'ethos_d365i_plugin_activate' );
 
-define( 'ETHOS_D365I_INTEGRATION_VERSION', '0.8.3' );
+define( 'ETHOS_D365I_INTEGRATION_VERSION', '0.8.4' );
 define( 'ETHOS_D365I_INTEGRATION_PATH', plugins_url( '/', __FILE__ ) );
 
 require_once( 'vendor/autoload.php' );
