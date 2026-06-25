@@ -2,6 +2,8 @@
 
 namespace hacklabr;
 
+defined( 'ABSPATH' ) || exit;
+
 function add_sync_status_page() {
     add_management_page(
         __( 'Sincronização de cadastros', 'hacklabr' ),

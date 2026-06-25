@@ -2,6 +2,8 @@
 
 namespace hacklabr;
 
+defined( 'ABSPATH' ) || exit;
+
 use \AlexaCRM\Xrm\Entity;
 
 function event_exists_on_wp( string $entity_id ) {
@@ -94,29 +96,39 @@ function create_event_on_wp( Entity $entity ) {
 
         // Validate that TEC custom table entry was created.
         global $wpdb;
-        $tec_row = $wpdb->get_var( $wpdb->prepare(
-            "SELECT event_id FROM {$wpdb->prefix}tec_events WHERE post_id = %d",
-            $result
-        ) );
+        $tec_table = $wpdb->prefix . 'tec_events';
 
-        if ( empty( $tec_row ) ) {
-            do_action( 'logger', sprintf(
-                'create_event_on_wp: Post %d sem registro em %stec_events. Tentando repair automatico...',
-                $result, $wpdb->prefix
+        // Check if TEC custom table exists before querying.
+        $table_check = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $tec_table ) );
+        if ( $table_check === $tec_table ) {
+            $tec_row = $wpdb->get_var( $wpdb->prepare(
+                "SELECT event_id FROM {$tec_table} WHERE post_id = %d",
+                $result
             ) );
 
-            try {
-                $events_service = tribe( \TEC\Events\Custom_Tables\V1\Updates\Events::class );
-                $repaired = $events_service->update( $result );
+            if ( empty( $tec_row ) ) {
+                do_action( 'logger', sprintf(
+                    'create_event_on_wp: Post %d (Entity %s) sem registro em %s. Tentando repair automatico...',
+                    $result, $entity_id, $tec_table
+                ) );
 
-                if ( $repaired ) {
-                    do_action( 'logger', "create_event_on_wp: Post {$result} reparado com sucesso.", 'info' );
-                } else {
-                    do_action( 'logger', "create_event_on_wp: Falha ao reparar Post {$result}.", 'error' );
+                try {
+                    $events_service = tribe( \TEC\Events\Custom_Tables\V1\Updates\Events::class );
+                    $repaired = $events_service->update( $result );
+
+                    if ( $repaired ) {
+                        do_action( 'logger', "create_event_on_wp: Post {$result} reparado com sucesso na custom table.", 'info' );
+                    } else {
+                        do_action( 'logger', "create_event_on_wp: Falha ao reparar Post {$result}. Events::update retornou false.", 'error' );
+                    }
+                } catch ( \Throwable $e ) {
+                    do_action( 'logger', "create_event_on_wp: Excecao ao reparar Post {$result}: " . $e->getMessage(), 'error' );
                 }
-            } catch ( \Throwable $e ) {
-                do_action( 'logger', "create_event_on_wp: Excecao ao reparar Post {$result}: " . $e->getMessage(), 'error' );
+            } else {
+                do_action( 'logger', "create_event_on_wp: Post {$result} validado - event_id={$tec_row} na custom table.", 'debug' );
             }
+        } else {
+            do_action( 'logger', "create_event_on_wp: Tabela {$tec_table} nao encontrada - pulando validacao de custom table para Post {$result}.", 'warning' );
         }
     }
 
