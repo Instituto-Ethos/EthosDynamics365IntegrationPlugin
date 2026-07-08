@@ -7,31 +7,20 @@ defined( 'ABSPATH' ) || exit;
 use \AlexaCRM\Xrm\Entity;
 
 function event_exists_on_wp( string $entity_id ) {
-    $args = [
-        'post_type'      => 'tribe_events',
-        'post_status'    => ['publish', 'pending', 'draft', 'future', 'private', 'inherit'],
-        'meta_query'     => [
-            [
-                'key'     => 'entity_fut_projeto',
-                'value'   => $entity_id,
-                'compare' => '='
-            ]
-        ],
-        'posts_per_page' => 1,
+    global $wpdb;
 
-        // The Events Calendar can add filters that may cause a false mismatch
-        'suppress_filters' => true,
-        'tribe_remove_date_filters' => true,
-        'tribe_suppress_query_filters' => true,
-    ];
+    $post_id = $wpdb->get_var( $wpdb->prepare(
+        "SELECT p.ID FROM {$wpdb->posts} p
+         INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+         WHERE p.post_type = 'tribe_events'
+           AND p.post_status IN ('publish','pending','draft','future','private','inherit')
+           AND pm.meta_key = 'entity_fut_projeto'
+           AND pm.meta_value = %s
+         ORDER BY p.ID ASC LIMIT 1",
+        $entity_id
+    ) );
 
-    $events = get_posts( $args );
-
-    if ( ! empty( $events ) ) {
-        return $events[0]->ID;
-    }
-
-    return false;
+    return $post_id ? (int) $post_id : false;
 }
 
 function create_event_on_wp( Entity $entity ) {
