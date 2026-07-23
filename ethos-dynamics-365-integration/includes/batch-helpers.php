@@ -139,16 +139,22 @@ function format_filter_value( $value, string $field_type ): string {
         return $value ? 'true' : 'false';
     }
 
-    if ( is_numeric( $value ) ) {
-        return (string) $value;
-    }
-
     if ( is_guid( $value ) || $field_type === 'Edm.Guid' ) {
         return (string) $value;
     }
 
     if ( $value instanceof \DateTimeInterface ) {
         return "'" . $value->format( 'c' ) . "'";
+    }
+
+    if ( $field_type === 'Edm.String' ) {
+        $string_value = (string) $value;
+        $escaped = str_replace( "'", "''", $string_value );
+        return "'" . $escaped . "'";
+    }
+
+    if ( is_numeric( $value ) ) {
+        return (string) $value;
     }
 
     $string_value = (string) $value;
@@ -393,10 +399,23 @@ class Dynamics_Batch_Builder {
         ];
 
         $http_client = $this->client->getHttpClient();
-        $response = $http_client->request( 'POST', $url, [
-            'headers' => $headers,
-            'body'    => $body,
-        ] );
+
+        try {
+            $response = $http_client->request( 'POST', $url, [
+                'headers' => $headers,
+                'body'    => $body,
+            ] );
+        } catch ( \Throwable $e ) {
+            $response_body = '';
+            if ( method_exists( $e, 'getResponse' ) && $e->getResponse() ) {
+                $response_body = (string) $e->getResponse()->getBody();
+            }
+
+            do_action( 'logger', '[DynamicsBatch] HTTP request failed: ' . $e->getMessage(), 'error' );
+            do_action( 'logger', '[DynamicsBatch] Response body: ' . $response_body, 'error' );
+
+            throw $e;
+        }
 
         return $this->parse_batch_response( $response, $operations );
     }
@@ -414,19 +433,17 @@ class Dynamics_Batch_Builder {
             }
         }
 
-        if ( $transactional && ! empty( $write_operations ) ) {
-            $changeset_parts = [];
-            foreach ( $write_operations as $index ) {
-                $changeset_parts[] = $this->build_operation_part( $operations[ $index ], true, $changeset_boundary );
-            }
-
-            $parts[] = '--' . $batch_boundary . "\r\n";
-            $parts[] = 'Content-Type: multipart/mixed; boundary=' . $changeset_boundary . "\r\n";
-            $parts[] = "\r\n";
-            $parts[] = implode( "\r\n", $changeset_parts );
-            $parts[] = '--' . $changeset_boundary . "--\r\n";
-            $parts[] = "\r\n";
-        } elseif ( ! empty( $write_operations ) ) {
+		if ( $transactional && ! empty( $write_operations ) ) {
+			$parts[] = '--' . $batch_boundary . "\r\n";
+			$parts[] = 'Content-Type: multipart/mixed; boundary=' . $changeset_boundary . "\r\n";
+			$parts[] = "\r\n";
+			foreach ( $write_operations as $index ) {
+				$parts[] = '--' . $changeset_boundary . "\r\n";
+				$parts[] = $this->build_operation_part( $operations[ $index ], true, $changeset_boundary );
+			}
+			$parts[] = '--' . $changeset_boundary . "--\r\n";
+			$parts[] = "\r\n";
+		} elseif ( ! empty( $write_operations ) ) {
             foreach ( $write_operations as $index ) {
                 $parts[] = '--' . $batch_boundary . "\r\n";
                 $parts[] = $this->build_operation_part( $operations[ $index ], false, null );
