@@ -272,6 +272,7 @@ class Dynamics_Batch_Builder {
     private ODataClient $client;
     private array $operations = [];
     private int $content_id_counter = 1;
+    private array $results_by_content_id = [];
 
     public function __construct( ODataClient $client ) {
         $this->client = $client;
@@ -353,7 +354,27 @@ class Dynamics_Batch_Builder {
             $results = array_merge( $results, $chunk_results );
         }
 
+        $this->index_results( $results );
+
         return $results;
+    }
+
+    public function get_result( Dynamics_Batch_Reference $ref ): ?array {
+        return $this->results_by_content_id[ $ref->get_content_id() ] ?? null;
+    }
+
+    private function index_results( array $results ): void {
+        foreach ( $results as $result ) {
+            $op_index = $result['index'] ?? null;
+            if ( $op_index === null || ! isset( $this->operations[ $op_index ] ) ) {
+                continue;
+            }
+
+            $content_id = $this->operations[ $op_index ]['content_id'] ?? null;
+            if ( $content_id !== null ) {
+                $this->results_by_content_id[ $content_id ] = $result;
+            }
+        }
     }
 
     private function execute_chunk( array $operations, bool $transactional ): array {
