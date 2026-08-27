@@ -135,8 +135,18 @@ function format_filter_value( $value, string $field_type ): string {
         return 'null';
     }
 
+    if ( $field_type === 'Edm.String' ) {
+        $string_value = (string) $value;
+        $escaped = str_replace( "'", "''", $string_value );
+        return "'" . $escaped . "'";
+    }
+
     if ( is_bool( $value ) ) {
         return $value ? 'true' : 'false';
+    }
+
+    if ( $value instanceof \DateTimeInterface ) {
+        return "'" . $value->format( 'c' ) . "'";
     }
 
     if ( is_numeric( $value ) ) {
@@ -145,10 +155,6 @@ function format_filter_value( $value, string $field_type ): string {
 
     if ( is_guid( $value ) || $field_type === 'Edm.Guid' ) {
         return (string) $value;
-    }
-
-    if ( $value instanceof \DateTimeInterface ) {
-        return "'" . $value->format( 'c' ) . "'";
     }
 
     $string_value = (string) $value;
@@ -393,10 +399,17 @@ class Dynamics_Batch_Builder {
         ];
 
         $http_client = $this->client->getHttpClient();
-        $response = $http_client->request( 'POST', $url, [
-            'headers' => $headers,
-            'body'    => $body,
-        ] );
+        try {
+            $response = $http_client->request( 'POST', $url, [
+                'headers' => $headers,
+                'body'    => $body,
+            ] );
+        } catch ( \GuzzleHttp\Exception\RequestException $e ) {
+            $response = $e->getResponse();
+            if ( $response === null ) {
+                throw $e;
+            }
+        }
 
         return $this->parse_batch_response( $response, $operations );
     }
@@ -414,28 +427,37 @@ class Dynamics_Batch_Builder {
             }
         }
 
-        if ( $transactional && ! empty( $write_operations ) ) {
-            $changeset_parts = [];
-            foreach ( $write_operations as $index ) {
-                $changeset_parts[] = $this->build_operation_part( $operations[ $index ], true, $changeset_boundary );
-            }
-
-            $parts[] = '--' . $batch_boundary . "\r\n";
-            $parts[] = 'Content-Type: multipart/mixed; boundary=' . $changeset_boundary . "\r\n";
-            $parts[] = "\r\n";
-            $parts[] = implode( "\r\n", $changeset_parts );
-            $parts[] = '--' . $changeset_boundary . "--\r\n";
-            $parts[] = "\r\n";
-        } elseif ( ! empty( $write_operations ) ) {
-            foreach ( $write_operations as $index ) {
+        if ( ! empty( $write_operations ) ) {
+            if ( $transactional ) {
                 $parts[] = '--' . $batch_boundary . "\r\n";
-                $parts[] = $this->build_operation_part( $operations[ $index ], false, null );
+                $parts[] = 'Content-Type: multipart/mixed; boundary=' . $changeset_boundary . "\r\n";
+                $parts[] = "\r\n";
+
+                foreach ( $write_operations as $index ) {
+                    $parts[] = '--' . $changeset_boundary . "\r\n";
+                    $parts[] = $this->build_operation_part( $operations[ $index ], true );
+                }
+
+                $parts[] = '--' . $changeset_boundary . "--\r\n";
+                $parts[] = "\r\n";
+            } else {
+                foreach ( $write_operations as $sequence => $index ) {
+                    $single_changeset_boundary = $changeset_boundary . '_' . $sequence;
+
+                    $parts[] = '--' . $batch_boundary . "\r\n";
+                    $parts[] = 'Content-Type: multipart/mixed; boundary=' . $single_changeset_boundary . "\r\n";
+                    $parts[] = "\r\n";
+                    $parts[] = '--' . $single_changeset_boundary . "\r\n";
+                    $parts[] = $this->build_operation_part( $operations[ $index ], true );
+                    $parts[] = '--' . $single_changeset_boundary . "--\r\n";
+                    $parts[] = "\r\n";
+                }
             }
         }
 
         foreach ( $query_operations as $index ) {
             $parts[] = '--' . $batch_boundary . "\r\n";
-            $parts[] = $this->build_operation_part( $operations[ $index ], false, null );
+            $parts[] = $this->build_operation_part( $operations[ $index ], false );
         }
 
         $parts[] = '--' . $batch_boundary . "--\r\n";
@@ -443,7 +465,7 @@ class Dynamics_Batch_Builder {
         return implode( '', $parts );
     }
 
-    private function build_operation_part( array $operation, bool $in_changeset, ?string $changeset_boundary ): string {
+    private function build_operation_part( array $operation, bool $in_changeset ): string {
         $metadata = $this->client->getMetadata();
         $collection_name = $metadata->getEntitySetName( $operation['entity_name'] );
         $endpoint = $this->client->getSettings()->getEndpointURI();
@@ -468,6 +490,10 @@ class Dynamics_Batch_Builder {
     }
 
     private function build_query_part( array $operation, string $collection_name, string $endpoint ): string {
+        $metadata = $this->client->getMetadata();
+        $entity_map = $metadata->getEntityMap( $operation['entity_name'] );
+        $column_map = array_flip( $entity_map->inboundMap );
+
         $query_options = [];
 
         if ( ! empty( $operation['filters'] ) ) {
@@ -479,12 +505,15 @@ class Dynamics_Batch_Builder {
         }
 
         if ( ! empty( $operation['options']['orderby'] ) ) {
+            $schema_order = $column_map[ $operation['options']['orderby'] ] ?? $operation['options']['orderby'];
             $order = strtolower( $operation['options']['order'] ?? 'desc' );
-            $query_options['OrderBy'][] = $operation['options']['orderby'] . ' ' . $order;
+            $query_options['OrderBy'][] = $schema_order . ' ' . $order;
         }
 
         if ( ! empty( $operation['options']['select'] ) ) {
-            $query_options['Select'] = $operation['options']['select'];
+            $query_options['Select'] = array_map( function ( $field ) use ( $column_map ) {
+                return $column_map[ $field ] ?? $field;
+            }, $operation['options']['select'] );
         }
 
         $url = $this->build_query_url( $collection_name, $query_options, $endpoint );
@@ -523,7 +552,7 @@ class Dynamics_Batch_Builder {
         $url = $endpoint . $collection_name;
 
         if ( ! empty( $query_parameters ) ) {
-            $url .= '?' . http_build_query( $query_parameters );
+            $url .= '?' . http_build_query( $query_parameters, '', '&', PHP_QUERY_RFC3986 );
         }
 
         return $url;
@@ -646,45 +675,66 @@ class Dynamics_Batch_Builder {
         $boundary = $this->extract_boundary( $content_type );
         $body = (string) $response->getBody();
 
-        $results = array_fill( 0, count( $operations ), [
-            'type'      => 'unknown',
-            'status'    => 'error',
-            'entity_id' => null,
-            'data'      => null,
-            'message'   => 'Unknown error',
-            'index'     => 0,
-        ] );
+        $results = [];
+        foreach ( $operations as $index => $operation ) {
+            $results[ $index ] = [
+                'type'      => $operation['type'],
+                'status'    => 'error',
+                'entity_id' => null,
+                'data'      => null,
+                'message'   => 'No response received (batch processing stopped at an earlier failed request)',
+                'index'     => $index,
+            ];
+        }
 
         if ( empty( $boundary ) ) {
             return $results;
         }
 
-        $parts = $this->parse_multipart( $body, $boundary );
-        $operation_index = 0;
+        $write_indexes = [];
+        $query_indexes = [];
+        foreach ( $operations as $index => $operation ) {
+            if ( $operation['type'] === 'query' ) {
+                $query_indexes[] = $index;
+            } else {
+                $write_indexes[] = $index;
+            }
+        }
 
-        foreach ( $parts as $part ) {
+        $write_response_parts = [];
+        $query_response_parts = [];
+
+        foreach ( $this->parse_multipart( $body, $boundary ) as $part ) {
             if ( empty( $part['body'] ) ) {
                 continue;
             }
 
             if ( str_starts_with( $part['content_type'] ?? '', 'multipart/mixed' ) ) {
                 $nested_boundary = $this->extract_boundary( $part['content_type'] );
-                $nested_parts = $this->parse_multipart( $part['body'], $nested_boundary );
-
-                foreach ( $nested_parts as $nested_part ) {
-                    if ( $operation_index >= count( $operations ) ) {
-                        break;
+                foreach ( $this->parse_multipart( $part['body'], $nested_boundary ) as $nested_part ) {
+                    if ( ! empty( $nested_part['body'] ) ) {
+                        $write_response_parts[] = $nested_part;
                     }
-                    $results[ $operation_index ] = $this->parse_response_part( $nested_part, $operations[ $operation_index ], $operation_index );
-                    $operation_index++;
                 }
             } else {
-                if ( $operation_index >= count( $operations ) ) {
-                    break;
-                }
-                $results[ $operation_index ] = $this->parse_response_part( $part, $operations[ $operation_index ], $operation_index );
-                $operation_index++;
+                $query_response_parts[] = $part;
             }
+        }
+
+        foreach ( $write_response_parts as $sequence => $part ) {
+            if ( ! isset( $write_indexes[ $sequence ] ) ) {
+                break;
+            }
+            $index = $write_indexes[ $sequence ];
+            $results[ $index ] = $this->parse_response_part( $part, $operations[ $index ], $index );
+        }
+
+        foreach ( $query_response_parts as $sequence => $part ) {
+            if ( ! isset( $query_indexes[ $sequence ] ) ) {
+                break;
+            }
+            $index = $query_indexes[ $sequence ];
+            $results[ $index ] = $this->parse_response_part( $part, $operations[ $index ], $index );
         }
 
         return $results;
