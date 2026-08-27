@@ -246,7 +246,7 @@ function get_crm_entities_advanced( string $entity, array $filters, array $args 
             $collection->Entities[] = $record;
         }
 
-        if ( $params['cache'] !== false ) {
+        if ( $params['cache'] !== false && count( $collection->Entities ) > 0 ) {
             set_transient( $cache_key, $collection, $params['cache'] );
         }
     } catch ( \Exception $e ) {

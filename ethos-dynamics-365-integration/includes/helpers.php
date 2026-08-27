@@ -202,7 +202,7 @@ function get_crm_entities( string $entity, array $args = [] ) {
         if ( $client !== false ) {
             $result = $client->RetrieveMultiple( $query );
 
-            if ( $params['cache'] !== false ) {
+            if ( $params['cache'] !== false && ( $result instanceof \AlexaCRM\Xrm\EntityCollection ) && count( $result->Entities ) > 0 ) {
                 set_transient( $cache_key, $result, $params['cache'] );
             }
 
