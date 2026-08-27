@@ -275,6 +275,8 @@ class Dynamics_Batch_Reference {
 class Dynamics_Batch_Builder {
     public const MAX_REQUESTS_PER_BATCH = 1000;
 
+    public const NO_RESPONSE_MESSAGE = 'No response received (batch processing stopped at an earlier failed request)';
+
     private ODataClient $client;
     private array $operations = [];
     private int $content_id_counter = 1;
@@ -357,10 +359,11 @@ class Dynamics_Batch_Builder {
 
         foreach ( $chunks as $chunk ) {
             $chunk_results = $this->execute_chunk( $chunk, $transactional );
-            $results = array_merge( $results, $chunk_results );
+            $results = array_merge( $results, $this->annotate_aborted_operations( $chunk_results ) );
         }
 
         $this->index_results( $results );
+        $this->log_failed_batch( $results );
 
         return $results;
     }
@@ -381,6 +384,73 @@ class Dynamics_Batch_Builder {
                 $this->results_by_content_id[ $content_id ] = $result;
             }
         }
+    }
+
+    private function log_failed_batch( array $results ): void {
+        $error_count = 0;
+        $lines = [];
+
+        foreach ( $results as $result ) {
+            if ( $result['status'] !== 'success' ) {
+                $error_count++;
+            }
+
+            $lines[] = sprintf(
+                '[%d] %s %s: %s%s',
+                $result['index'],
+                $result['type'],
+                $result['entity'] ?? '(desconhecida)',
+                $result['status'],
+                $result['message'] ? ' | ' . $result['message'] : ''
+            );
+        }
+
+        if ( $error_count === 0 ) {
+            return;
+        }
+
+        do_action(
+            'logger',
+            sprintf(
+                "Lote Dynamics 365 concluido com %d de %d operacoes com erro:\n%s",
+                $error_count,
+                count( $results ),
+                implode( "\n", $lines )
+            )
+        );
+    }
+
+    private function annotate_aborted_operations( array $results ): array {
+        $first_failure_index = null;
+        $first_failure_message = null;
+
+        foreach ( $results as $result ) {
+            if ( $result['status'] === 'error' && $result['message'] !== self::NO_RESPONSE_MESSAGE ) {
+                $first_failure_index = $result['index'];
+                $first_failure_message = $result['message'];
+                break;
+            }
+        }
+
+        if ( $first_failure_index === null ) {
+            return $results;
+        }
+
+        /*
+         * Toda operacao sem resposta e explicada pelo abort do Dataverse
+         * (a ordem de execucao, escritas antes das queries, pode diferir da
+         * ordem de insercao). Repassa a mensagem da causa raiz para que o
+         * consumidor de qualquer resultado veja o erro original, sem precisar
+         * localizar a primeira operacao com falha. O logger continua exibindo
+         * o resultado completo, com indices e status por operacao.
+         */
+        foreach ( $results as $key => $result ) {
+            if ( $result['message'] === self::NO_RESPONSE_MESSAGE ) {
+                $results[ $key ]['message'] = $first_failure_message;
+            }
+        }
+
+        return $results;
     }
 
     private function execute_chunk( array $operations, bool $transactional ): array {
@@ -679,10 +749,11 @@ class Dynamics_Batch_Builder {
         foreach ( $operations as $index => $operation ) {
             $results[ $index ] = [
                 'type'      => $operation['type'],
+                'entity'    => $operation['entity_name'],
                 'status'    => 'error',
                 'entity_id' => null,
                 'data'      => null,
-                'message'   => 'No response received (batch processing stopped at an earlier failed request)',
+                'message'   => self::NO_RESPONSE_MESSAGE,
                 'index'     => $index,
             ];
         }
@@ -743,6 +814,7 @@ class Dynamics_Batch_Builder {
     private function parse_response_part( array $part, array $operation, int $index ): array {
         $result = [
             'type'      => $operation['type'],
+            'entity'    => $operation['entity_name'],
             'status'    => 'error',
             'entity_id' => null,
             'data'      => null,
