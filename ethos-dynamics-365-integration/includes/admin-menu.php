@@ -60,8 +60,8 @@ function render_sync_status_page() {
                 }
 
                 echo '<tr>';
-                echo '<td>' . $p->post_title . '</td>';
-                echo '<td>' . $get_log_error . '</td>';
+                echo '<td>' . esc_html( $p->post_title ) . '</td>';
+                echo '<td>' . esc_html( $get_log_error ) . '</td>';
                 echo '<td>';
                 echo '<a href="' . get_edit_post_link( $p->ID ) . '" class="button button-primary">' . __( 'Ver organização', 'hacklabr' ) . '</a>';
                 echo ' ';
@@ -84,7 +84,7 @@ function render_sync_status_page() {
             'posts_per_page' => -1
         ] );
 
-        echo '<h2>' . __( 'Cadastros aguardando aprovação do lead.', 'hacklab' ) . '</h2>';
+        echo '<h2>' . __( 'Cadastros aguardando aprovação do lead.', 'hacklabr' ) . '</h2>';
 
         if ( $get_waitting_approval_posts ) {
             echo '<table class="widefat">';
@@ -133,6 +133,9 @@ function sync_settings_render() {
     ?>
     <div class="wrap">
         <h1>Configurações de Sync</h1>
+
+        <?php render_migration_status_section(); ?>
+
         <form method="post" action="options.php">
             <?php
             settings_fields( 'sync_settings_group' );
@@ -271,6 +274,8 @@ function sync_settings_render() {
         <p class="description">Nenhum evento órfão encontrado. Todos os eventos possuem registro na custom table do TEC.</p>
         <?php endif; ?>
 
+        <?php render_migration_logs_panel(); ?>
+
     </div>
     <?php
 }
@@ -343,4 +348,151 @@ function handle_fix_orphaned_events() {
     exit;
 }
 add_action( 'admin_post_fix_orphaned_events', 'hacklabr\\handle_fix_orphaned_events' );
+
+/**
+ * Renders the "Migração incremental" section on the Configurações de Sync
+ * admin page (called directly from sync_settings_render()).
+ *
+ * Render-only (no actions): scheduled run status, last run stats and
+ * access to the daily migration log files. Data and helpers come from
+ * the Ethos Migration Plugin; nothing renders if it is inactive.
+ */
+function render_migration_status_section() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    if ( ! defined( 'ethos\\migration\\LOG_DIR' ) ) {
+        return;
+    }
+
+    $next_run = wp_next_scheduled( 'ethos_migration\run_daily' );
+    $is_running = ! empty( get_transient( \ethos\migration\LOCK_KEY ) );
+    $last_run = get_option( \ethos\migration\LAST_RUN_OPTION, [] );
+
+    echo '<hr />';
+    echo '<h2>Migração incremental (diária)</h2>';
+
+    echo '<table class="widefat striped" style="max-width:600px;">';
+    if ( $is_running ) {
+        echo '<tr><th>Status</th><td><strong>Execução em andamento</strong></td></tr>';
+    }
+    if ( ! empty( $next_run ) ) {
+        echo '<tr><th>Próxima execução</th><td>' . esc_html( wp_date( 'd/m/Y H:i:s P', $next_run ) ) . '</td></tr>';
+    } else {
+        echo '<tr><th>Próxima execução</th><td><strong>Evento não agendado</strong> (será reagendado no próximo acesso ao site)</td></tr>';
+    }
+    echo '</table>';
+
+    if ( ! empty( $last_run ) ) {
+        echo '<h3>Última execução</h3>';
+        echo '<table class="widefat striped" style="max-width:600px;">';
+        echo '<tr><th>Início</th><td>' . esc_html( $last_run['started'] ?? '' ) . '</td></tr>';
+        echo '<tr><th>Fim</th><td>' . esc_html( $last_run['finished'] ?? '' ) . '</td></tr>';
+        echo '<tr><th>Duração</th><td>' . esc_html( ( $last_run['duration_s'] ?? 0 ) . ' s' ) . '</td></tr>';
+        echo '<tr><th>Contas ativas no CRM</th><td>' . (int) ( $last_run['active_accounts'] ?? 0 ) . '</td></tr>';
+        echo '<tr><th>Contatos importados/atualizados</th><td>' . (int) ( $last_run['contacts'] ?? 0 ) . '</td></tr>';
+        echo '<tr><th>Erros</th><td>' . (int) ( $last_run['errors'] ?? 0 ) . '</td></tr>';
+
+        $cleanup = $last_run['cleanup'] ?? [];
+        if ( ( $cleanup['status'] ?? '' ) === 'done' ) {
+            $cleanup_text = 'Concluída — ' . (int) ( $cleanup['removed'] ?? 0 ) . ' organização(ões) removida(s), ' . (int) ( $cleanup['errors'] ?? 0 ) . ' erro(s)';
+        } elseif ( ( $cleanup['status'] ?? '' ) === 'skipped' ) {
+            $cleanup_text = 'Ignorada — ' . esc_html( $cleanup['reason'] ?? 'motivo desconhecido' );
+        } else {
+            $cleanup_text = '—';
+        }
+        echo '<tr><th>Limpeza de inativos</th><td>' . $cleanup_text . '</td></tr>';
+
+        echo '</table>';
+    }
+}
+
+/**
+ * Lists available migration log files, newest first.
+ *
+ * @return string[] Absolute file paths.
+ */
+function get_migration_log_files() : array {
+    $files = glob( \ethos\migration\LOG_DIR . '/migration-*.log' );
+
+    if ( empty( $files ) ) {
+        return [];
+    }
+
+    rsort( $files ); // newest first (YYYY-MM-DD in filename)
+
+    return $files;
+}
+
+/**
+ * Validates a requested log filename and returns its resolved path,
+ * or null when invalid (strict pattern + realpath containment).
+ *
+ * @return string|null
+ */
+function validate_migration_log_file( string $filename ) : ?string {
+    if ( ! preg_match( '/^migration-\d{4}-\d{2}-\d{2}\.log$/', $filename ) ) {
+        return null;
+    }
+
+    $realpath = realpath( \ethos\migration\LOG_DIR . '/' . $filename );
+
+    if ( false === $realpath || ! is_file( $realpath ) || ! str_starts_with( $realpath, (string) realpath( \ethos\migration\LOG_DIR ) ) ) {
+        return null;
+    }
+
+    return $realpath;
+}
+
+/**
+ * Renders the migration logs panel: file list plus the selected file's
+ * full contents in a scrollable pre.
+ */
+function render_migration_logs_panel() {
+    if ( ! current_user_can( 'manage_options' ) || ! defined( 'ethos\\migration\\LOG_DIR' ) ) {
+        return;
+    }
+
+    echo '<hr />';
+    echo '<h3>Logs de migração</h3>';
+
+    $files = get_migration_log_files();
+
+    if ( empty( $files ) ) {
+        echo '<p class="description">Nenhum arquivo de log encontrado (a primeira execução cria os logs).</p>';
+        return;
+    }
+
+    $requested = isset( $_GET['migration_log'] ) ? sanitize_text_field( wp_unslash( $_GET['migration_log'] ) ) : '';
+    $selected = ! empty( $requested ) ? validate_migration_log_file( $requested ) : null;
+
+    if ( null === $selected ) {
+        $selected = $files[0];
+    }
+
+    echo '<p>';
+    foreach ( $files as $file ) {
+        $basename = basename( $file );
+
+        if ( $file === $selected ) {
+            echo '<strong>[' . esc_html( $basename ) . ']</strong> ';
+        } else {
+            $url = add_query_arg( [ 'page' => 'sync-settings', 'migration_log' => $basename ], admin_url( 'options-general.php' ) );
+            echo '<a href="' . esc_url( $url ) . '">' . esc_html( $basename ) . '</a> ';
+        }
+
+        echo '<span class="description">(' . esc_html( size_format( (int) filesize( $file ) ) ) . ')</span> ';
+    }
+    echo '</p>';
+
+    $contents = file_get_contents( $selected );
+
+    if ( false === $contents || '' === $contents ) {
+        echo '<p class="description">Arquivo vazio.</p>';
+        return;
+    }
+
+    echo '<pre style="max-height:600px; overflow:auto; background:#fff; border:1px solid #c3c4c7; padding:12px;">' . esc_html( $contents ) . '</pre>';
+}
 
