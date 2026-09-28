@@ -5,7 +5,6 @@ namespace hacklabr;
 use \AlexaCRM\Xrm\Entity;
 use \AlexaCRM\Xrm\EntityCollection;
 use \AlexaCRM\Xrm\EntityReference;
-use \Snicco\Component\BetterWPCache\CacheFactory;
 use \Psr\Cache;
 
 /**
@@ -273,8 +272,15 @@ function iterate_crm_entities( string $entity, array $args = [] ) {
 
 function get_crm_entity_by_id( string $entity_name, string $entity_id, array $args = [] ) {
     $params = wp_parse_args($args, [
-        'cache' => 6 * HOUR_IN_SECONDS,
+        'cache'  => 6 * HOUR_IN_SECONDS,
+        'select' => [],
+        'throw'  => false,
     ]);
+
+    // Partial entities must never poison the full-entity cache.
+    if ( ! empty( $params['select'] ) ) {
+        $params['cache'] = false;
+    }
 
     if ( $params['cache'] !== false ) {
         $cached_data = get_cached_crm_entity( $entity_name, $entity_id );
@@ -288,7 +294,12 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, array $ar
 
     if ( $client !== false ) {
         $column_set = new \AlexaCRM\Xrm\ColumnSet();
-        $column_set->AllColumns = true;
+
+        if ( ! empty( $params['select'] ) ) {
+            $column_set->Columns = $params['select'];
+        } else {
+            $column_set->AllColumns = true;
+        }
 
         try {
             $result = $client->Retrieve( $entity_name, $entity_id, $column_set );
@@ -299,6 +310,10 @@ function get_crm_entity_by_id( string $entity_name, string $entity_id, array $ar
 
             return $result;
         } catch ( \Exception $e ) {
+            if ( $params['throw'] ) {
+                throw $e;
+            }
+
             do_action( 'logger', $e->getMessage() );
         }
     }
@@ -349,8 +364,19 @@ function get_crm_client_secret() {
     return $options['clientSecret'] ?? '';
 }
 
+/**
+ * PSR-6 pool for the AlexaCRM toolkit (token + metadata), memoized per
+ * request (P1). Raw values over wp_cache_*: the persistent object cache
+ * backend already serializes, so no double serialization (C1).
+ */
 function get_psr6_cache(): Cache\CacheItemPoolInterface {
-    return CacheFactory::psr6( 'ethos-dynamics-365-integration' );
+    static $pool = null;
+
+    if ( null === $pool ) {
+        $pool = new Ethos_WP_Cache_Pool();
+    }
+
+    return $pool;
 }
 
 function format_iso8601_to_events( $date ) {

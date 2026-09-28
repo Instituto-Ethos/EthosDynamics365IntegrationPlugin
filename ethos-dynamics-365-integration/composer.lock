@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8f6e05b3b3a1a1a4bcba3e16384ff692",
+    "content-hash": "8300972ab718aafc70e214e72938531a",
     "packages": [
         {
             "name": "alexacrm/dynamics-webapi-toolkit",
@@ -94,328 +94,6 @@
                 "source": "https://github.com/AlexaCRM/strong-serializer/tree/2.0"
             },
             "time": "2020-09-18T11:46:28+00:00"
-        },
-        {
-            "name": "cache/simple-cache-bridge",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-cache/simple-cache-bridge.git",
-                "reference": "63c0179d9afeb34ed383870a64d19eb9a3fea0c1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-cache/simple-cache-bridge/zipball/63c0179d9afeb34ed383870a64d19eb9a3fea0c1",
-                "reference": "63c0179d9afeb34ed383870a64d19eb9a3fea0c1",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4",
-                "psr/cache": "^1.0 || ^2.0",
-                "psr/simple-cache": "^1.0"
-            },
-            "provide": {
-                "psr/simple-cache-implementation": "^1.0"
-            },
-            "require-dev": {
-                "cache/integration-tests": "^0.17",
-                "mockery/mockery": "^1.0",
-                "phpunit/phpunit": "^7.5.20 || ^9.5.10",
-                "symfony/cache": "^3.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cache\\Bridge\\SimpleCache\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Magnus Nordlander",
-                    "email": "magnus@fervo.se",
-                    "homepage": "https://github.com/magnusnordlander"
-                }
-            ],
-            "description": "A PSR-6 bridge to PSR-16. This will make any PSR-6 cache compatible with SimpleCache.",
-            "homepage": "http://www.php-cache.com/en/latest/",
-            "keywords": [
-                "Bridge",
-                "cache",
-                "psr-16",
-                "psr-6"
-            ],
-            "support": {
-                "source": "https://github.com/php-cache/simple-cache-bridge/tree/1.2.0"
-            },
-            "time": "2022-01-15T15:47:19+00:00"
-        },
-        {
-            "name": "cache/tag-interop",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-cache/tag-interop.git",
-                "reference": "a06c2c03555581cf3740a8c161bc680ce3265c61"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-cache/tag-interop/zipball/a06c2c03555581cf3740a8c161bc680ce3265c61",
-                "reference": "a06c2c03555581cf3740a8c161bc680ce3265c61",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.5 || ^7.0 || ^8.0",
-                "psr/cache": "^1.0 || ^2.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cache\\TagInterop\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Tobias Nyholm",
-                    "email": "tobias.nyholm@gmail.com",
-                    "homepage": "https://github.com/nyholm"
-                },
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com",
-                    "homepage": "https://github.com/nicolas-grekas"
-                }
-            ],
-            "description": "Framework interoperable interfaces for tags",
-            "homepage": "https://www.php-cache.com/en/latest/",
-            "keywords": [
-                "cache",
-                "psr",
-                "psr6",
-                "tag"
-            ],
-            "support": {
-                "issues": "https://github.com/php-cache/tag-interop/issues",
-                "source": "https://github.com/php-cache/tag-interop/tree/master"
-            },
-            "time": "2021-12-31T11:58:30+00:00"
-        },
-        {
-            "name": "cache/taggable-cache",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-cache/taggable-cache.git",
-                "reference": "2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-cache/taggable-cache/zipball/2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec",
-                "reference": "2c67d5170f5ccc858b4819da75fd91a4f6c1b1ec",
-                "shasum": ""
-            },
-            "require": {
-                "cache/tag-interop": "^1.0",
-                "php": ">=7.4",
-                "psr/cache": "^1.0 || ^2.0"
-            },
-            "require-dev": {
-                "cache/integration-tests": "^0.17",
-                "phpunit/phpunit": "^7.5.20 || ^9.5.10",
-                "symfony/cache": "^3.1"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cache\\Taggable\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aaron Scherer",
-                    "email": "aequasi@gmail.com",
-                    "homepage": "https://github.com/aequasi"
-                },
-                {
-                    "name": "Magnus Nordlander",
-                    "email": "magnus@fervo.se",
-                    "homepage": "https://github.com/magnusnordlander"
-                },
-                {
-                    "name": "Tobias Nyholm",
-                    "email": "tobias.nyholm@gmail.com",
-                    "homepage": "https://github.com/nyholm"
-                }
-            ],
-            "description": "Add tag support to your PSR-6 cache implementation",
-            "homepage": "http://www.php-cache.com/en/latest/",
-            "keywords": [
-                "Taggable",
-                "cache",
-                "psr6",
-                "tag"
-            ],
-            "support": {
-                "source": "https://github.com/php-cache/taggable-cache/tree/1.2.0"
-            },
-            "time": "2022-01-15T15:47:19+00:00"
-        },
-        {
-            "name": "cweagans/composer-configurable-plugin",
-            "version": "2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-configurable-plugin.git",
-                "reference": "15433906511a108a1806710e988629fd24b89974"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-configurable-plugin/zipball/15433906511a108a1806710e988629fd24b89974",
-                "reference": "15433906511a108a1806710e988629fd24b89974",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.0.0"
-            },
-            "require-dev": {
-                "codeception/codeception": "~4.0",
-                "codeception/module-asserts": "^2.0",
-                "composer/composer": "~2.0",
-                "php-coveralls/php-coveralls": "~2.0",
-                "php-parallel-lint/php-parallel-lint": "^1.0.0",
-                "phpro/grumphp": "^1.8.0",
-                "sebastian/phpcpd": "^6.0",
-                "squizlabs/php_codesniffer": "^3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a lightweight configuration system for Composer plugins.",
-            "support": {
-                "issues": "https://github.com/cweagans/composer-configurable-plugin/issues",
-                "source": "https://github.com/cweagans/composer-configurable-plugin/tree/2.0.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/cweagans",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-02-12T04:58:58+00:00"
-        },
-        {
-            "name": "cweagans/composer-patches",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "7f944504d8289f42470c877d4d4ddb504ab8d91d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/7f944504d8289f42470c877d4d4ddb504ab8d91d",
-                "reference": "7f944504d8289f42470c877d4d4ddb504ab8d91d",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^2.0",
-                "cweagans/composer-configurable-plugin": "^2.0",
-                "ext-json": "*",
-                "php": ">=8.0.0"
-            },
-            "require-dev": {
-                "codeception/codeception": "~4.0",
-                "codeception/module-asserts": "^2.0",
-                "codeception/module-cli": "^2.0",
-                "codeception/module-filesystem": "^2.0",
-                "composer/composer": "~2.0",
-                "php-coveralls/php-coveralls": "~2.0",
-                "php-parallel-lint/php-parallel-lint": "^1.0.0",
-                "phpro/grumphp": "^1.8.0",
-                "sebastian/phpcpd": "^6.0",
-                "squizlabs/php_codesniffer": "^4.0"
-            },
-            "default-branch": true,
-            "type": "composer-plugin",
-            "extra": {
-                "_": "The following two lines ensure that composer-patches is loaded as early as possible.",
-                "class": "cweagans\\Composer\\Plugin\\Patches",
-                "plugin-modifies-downloads": true,
-                "plugin-modifies-install-path": true
-            },
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a way to patch Composer packages.",
-            "support": {
-                "issues": "https://github.com/cweagans/composer-patches/issues",
-                "source": "https://github.com/cweagans/composer-patches/tree/main"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/cweagans",
-                    "type": "github"
-                }
-            ],
-            "time": "2026-05-28T00:40:00+00:00"
         },
         {
             "name": "elao/enum",
@@ -843,25 +521,29 @@
         },
         {
             "name": "psr/cache",
-            "version": "1.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/cache.git",
-                "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8"
+                "reference": "588d5ff7035e78cd4f69eb798890749ac4641b30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/cache/zipball/d11b50ad223250cf17b86e38383413f5a6764bf8",
-                "reference": "d11b50ad223250cf17b86e38383413f5a6764bf8",
+                "url": "https://api.github.com/repos/php-fig/cache/zipball/588d5ff7035e78cd4f69eb798890749ac4641b30",
+                "reference": "588d5ff7035e78cd4f69eb798890749ac4641b30",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=8.0.0"
             },
+            "suggest": {
+                "fig/cache-util": "Provides some useful PSR-6 utilities"
+            },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -876,7 +558,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "homepage": "https://www.php-fig.org/"
                 }
             ],
             "description": "Common interface for caching libraries",
@@ -886,9 +568,9 @@
                 "psr-6"
             ],
             "support": {
-                "source": "https://github.com/php-fig/cache/tree/master"
+                "source": "https://github.com/php-fig/cache"
             },
-            "time": "2016-08-06T20:24:11+00:00"
+            "time": "2025-04-11T19:21:12+00:00"
         },
         {
             "name": "psr/http-client",
@@ -1104,57 +786,6 @@
             "time": "2024-09-11T13:17:53+00:00"
         },
         {
-            "name": "psr/simple-cache",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-fig/simple-cache.git",
-                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
-                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psr\\SimpleCache\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
-                }
-            ],
-            "description": "Common interfaces for simple caching",
-            "keywords": [
-                "cache",
-                "caching",
-                "psr",
-                "psr-16",
-                "simple-cache"
-            ],
-            "support": {
-                "source": "https://github.com/php-fig/simple-cache/tree/master"
-            },
-            "time": "2017-10-23T01:57:42+00:00"
-        },
-        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -1197,222 +828,6 @@
                 "source": "https://github.com/ralouphie/getallheaders/tree/develop"
             },
             "time": "2019-03-08T08:55:37+00:00"
-        },
-        {
-            "name": "snicco/better-wp-api",
-            "version": "v1.10.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/snicco/better-wp-api.git",
-                "reference": "713f7ad6b82bc5f821a600afb3c1762026b38ae6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/snicco/better-wp-api/zipball/713f7ad6b82bc5f821a600afb3c1762026b38ae6",
-                "reference": "713f7ad6b82bc5f821a600afb3c1762026b38ae6",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.4|^8.0"
-            },
-            "conflict": {
-                "snicco/better-wp-cache": "<1.10.1",
-                "snicco/better-wp-cache-bundle": "<1.10.1",
-                "snicco/better-wp-cli": "<1.10.1",
-                "snicco/better-wp-cli-testing": "<1.10.1",
-                "snicco/better-wp-hooks": "<1.10.1",
-                "snicco/better-wp-hooks-bundle": "<1.10.1",
-                "snicco/better-wp-mail": "<1.10.1",
-                "snicco/better-wp-mail-bundle": "<1.10.1",
-                "snicco/better-wp-mail-testing": "<1.10.1",
-                "snicco/better-wpdb": "<1.10.1",
-                "snicco/better-wpdb-bundle": "<1.10.1",
-                "snicco/blade-bridge": "<1.10.1",
-                "snicco/blade-bundle": "<1.10.1",
-                "snicco/content-negotiation-middleware": "<1.10.1",
-                "snicco/debug-bundle": "<1.10.1",
-                "snicco/default-headers-middleware": "<1.10.1",
-                "snicco/eloquent": "<1.10.1",
-                "snicco/encryption-bundle": "<1.10.1",
-                "snicco/event-dispatcher": "<1.10.1",
-                "snicco/event-dispatcher-testing": "<1.10.1",
-                "snicco/guests-only-middleware": "<1.0.0",
-                "snicco/http-routing": "<1.10.1",
-                "snicco/http-routing-bundle": "<1.10.1",
-                "snicco/http-routing-testing": "<1.10.1",
-                "snicco/https-only-middleware": "<1.10.1",
-                "snicco/illuminate-container-bridge": "<1.10.1",
-                "snicco/kernel": "<1.10.1",
-                "snicco/kernel-testing": "<1.10.1",
-                "snicco/method-override-middleware": "<1.10.1",
-                "snicco/minimal-logger": "<1.10.1",
-                "snicco/must-match-route-middleware": "<1.10.1",
-                "snicco/no-robots-middleware": "<1.10.1",
-                "snicco/open-redirect-protection-middleware": "<1.10.1",
-                "snicco/payload-middleware": "<1.10.1",
-                "snicco/pimple-bridge": "<1.10.1",
-                "snicco/psr7-error-handler": "<1.10.1",
-                "snicco/redirect-middleware": "<1.10.1",
-                "snicco/session": "<1.10.1",
-                "snicco/session-bundle": "<1.10.1",
-                "snicco/session-psr16-bridge": "<1.10.1",
-                "snicco/session-testing": "<1.10.1",
-                "snicco/session-wp-bridge": "<1.10.1",
-                "snicco/share-cookies-middleware": "<1.10.1",
-                "snicco/signed-url": "<1.10.1",
-                "snicco/signed-url-psr15-bridge": "<1.10.1",
-                "snicco/signed-url-psr16-bridge": "<1.10.1",
-                "snicco/signed-url-testing": "<1.10.1",
-                "snicco/signed-url-wp-bridge": "<1.10.1",
-                "snicco/str-arr": "<1.10.1",
-                "snicco/templating": "<1.10.1",
-                "snicco/templating-bundle": "<1.10.1",
-                "snicco/testable-clock": "<1.10.1",
-                "snicco/testing-bundle": "<1.10.1",
-                "snicco/trailing-slash-middleware": "<1.10.1",
-                "snicco/wp-auth-only-middleware": "<1.10.1",
-                "snicco/wp-capability-middleware": "<1.10.1",
-                "snicco/wp-capapility-middleware": "<1.0.0",
-                "snicco/wp-guests-only-middleware": "<1.10.1",
-                "snicco/wp-nonce-middleware": "<1.10.1"
-            },
-            "require-dev": {
-                "codeception/codeception": "^4.1.29",
-                "lucatume/wp-browser": "~3.1.4",
-                "phpunit/phpunit": "^9.5.13"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Snicco\\Component\\BetterWPAPI\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0-only"
-            ],
-            "authors": [
-                {
-                    "name": "Calvin Alkan",
-                    "email": "calvin@snicco.de"
-                }
-            ],
-            "description": "This small package tries to solve the pain point of not being able to solve to scope code that references WordPress core code.",
-            "support": {
-                "source": "https://github.com/snicco/better-wp-api/tree/v1.10.1"
-            },
-            "time": "2024-09-03T19:21:39+00:00"
-        },
-        {
-            "name": "snicco/better-wp-cache",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/snicco/better-wp-cache.git",
-                "reference": "d41438f414fabf4737eda324424e9cad9444a38b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/snicco/better-wp-cache/zipball/d41438f414fabf4737eda324424e9cad9444a38b",
-                "reference": "d41438f414fabf4737eda324424e9cad9444a38b",
-                "shasum": ""
-            },
-            "require": {
-                "cache/simple-cache-bridge": "^1.2.0",
-                "cache/tag-interop": "^1.1",
-                "cache/taggable-cache": "1.2.0",
-                "php": "^7.4|^8.0",
-                "psr/cache": "^1.0.0",
-                "psr/simple-cache": "^1.0.0",
-                "snicco/better-wp-api": "^1.10.1"
-            },
-            "conflict": {
-                "snicco/better-wp-cache-bundle": "<1.10.1",
-                "snicco/better-wp-cli": "<1.10.1",
-                "snicco/better-wp-cli-testing": "<1.10.1",
-                "snicco/better-wp-hooks": "<1.10.1",
-                "snicco/better-wp-hooks-bundle": "<1.10.1",
-                "snicco/better-wp-mail": "<1.10.1",
-                "snicco/better-wp-mail-bundle": "<1.10.1",
-                "snicco/better-wp-mail-testing": "<1.10.1",
-                "snicco/better-wpdb": "<1.10.1",
-                "snicco/better-wpdb-bundle": "<1.10.1",
-                "snicco/blade-bridge": "<1.10.1",
-                "snicco/blade-bundle": "<1.10.1",
-                "snicco/content-negotiation-middleware": "<1.10.1",
-                "snicco/debug-bundle": "<1.10.1",
-                "snicco/default-headers-middleware": "<1.10.1",
-                "snicco/eloquent": "<1.10.1",
-                "snicco/encryption-bundle": "<1.10.1",
-                "snicco/event-dispatcher": "<1.10.1",
-                "snicco/event-dispatcher-testing": "<1.10.1",
-                "snicco/guests-only-middleware": "<1.0.0",
-                "snicco/http-routing": "<1.10.1",
-                "snicco/http-routing-bundle": "<1.10.1",
-                "snicco/http-routing-testing": "<1.10.1",
-                "snicco/https-only-middleware": "<1.10.1",
-                "snicco/illuminate-container-bridge": "<1.10.1",
-                "snicco/kernel": "<1.10.1",
-                "snicco/kernel-testing": "<1.10.1",
-                "snicco/method-override-middleware": "<1.10.1",
-                "snicco/minimal-logger": "<1.10.1",
-                "snicco/must-match-route-middleware": "<1.10.1",
-                "snicco/no-robots-middleware": "<1.10.1",
-                "snicco/open-redirect-protection-middleware": "<1.10.1",
-                "snicco/payload-middleware": "<1.10.1",
-                "snicco/pimple-bridge": "<1.10.1",
-                "snicco/psr7-error-handler": "<1.10.1",
-                "snicco/redirect-middleware": "<1.10.1",
-                "snicco/session": "<1.10.1",
-                "snicco/session-bundle": "<1.10.1",
-                "snicco/session-psr16-bridge": "<1.10.1",
-                "snicco/session-testing": "<1.10.1",
-                "snicco/session-wp-bridge": "<1.10.1",
-                "snicco/share-cookies-middleware": "<1.10.1",
-                "snicco/signed-url": "<1.10.1",
-                "snicco/signed-url-psr15-bridge": "<1.10.1",
-                "snicco/signed-url-psr16-bridge": "<1.10.1",
-                "snicco/signed-url-testing": "<1.10.1",
-                "snicco/signed-url-wp-bridge": "<1.10.1",
-                "snicco/str-arr": "<1.10.1",
-                "snicco/templating": "<1.10.1",
-                "snicco/templating-bundle": "<1.10.1",
-                "snicco/testable-clock": "<1.10.1",
-                "snicco/testing-bundle": "<1.10.1",
-                "snicco/trailing-slash-middleware": "<1.10.1",
-                "snicco/wp-auth-only-middleware": "<1.10.1",
-                "snicco/wp-capability-middleware": "<1.10.1",
-                "snicco/wp-capapility-middleware": "<1.0.0",
-                "snicco/wp-guests-only-middleware": "<1.10.1",
-                "snicco/wp-nonce-middleware": "<1.10.1"
-            },
-            "require-dev": {
-                "cache/integration-tests": "0.17.0",
-                "codeception/codeception": "^4.1.29",
-                "lucatume/wp-browser": "~3.1.4",
-                "phpunit/phpunit": "^9.5.13"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Snicco\\Component\\BetterWPCache\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0-only"
-            ],
-            "authors": [
-                {
-                    "name": "Calvin Alkan",
-                    "email": "calvin@snicco.de"
-                }
-            ],
-            "support": {
-                "source": "https://github.com/snicco/better-wp-cache/tree/v1.10.1"
-            },
-            "time": "2024-09-03T19:21:45+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -1576,9 +991,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alexacrm/dynamics-webapi-toolkit": 20,
-        "cweagans/composer-patches": 20,
-        "snicco/better-wp-cache": 20
+        "alexacrm/dynamics-webapi-toolkit": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

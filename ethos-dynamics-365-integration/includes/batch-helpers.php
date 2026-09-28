@@ -66,7 +66,8 @@ function parse_filter_conditions( array $filters, array $column_map, array $fiel
             continue;
         }
 
-        if ( ! isset( $condition['field'] ) || ! isset( $condition['value'] ) ) {
+        // array_key_exists (not isset): a null value is a valid "field eq null" condition.
+        if ( ! isset( $condition['field'] ) || ! array_key_exists( 'value', $condition ) ) {
             continue;
         }
 
@@ -286,15 +287,26 @@ class Dynamics_Batch_Builder {
         $this->client = $client;
     }
 
-    public function add_query( string $entity_name, array $filters, array $options = [] ): self {
+    /**
+     * Queues a query (GET) inside the batch and returns a handle for
+     * reading its EntityCollection after execute() via get_result().
+     *
+     * Supported options: 'select' (array), 'per_page' (int, $top),
+     * 'orderby'/'order', 'count' (bool — emits $count=true with $top=0;
+     * the total lands on EntityCollection->TotalRecordCount).
+     */
+    public function add_query( string $entity_name, array $filters, array $options = [] ): Dynamics_Batch_Reference {
+        $content_id = (string) $this->content_id_counter++;
+
         $this->operations[] = [
             'type'        => 'query',
             'entity_name' => $entity_name,
             'filters'     => $filters,
             'options'     => $options,
+            'content_id'  => $content_id,
         ];
 
-        return $this;
+        return new Dynamics_Batch_Reference( $content_id );
     }
 
     public function add_create( string $entity_name, array $attributes ): Dynamics_Batch_Reference {
@@ -570,7 +582,10 @@ class Dynamics_Batch_Builder {
             $query_options['Filter'] = build_odata_filter( $operation['entity_name'], $operation['filters'] );
         }
 
-        if ( ! empty( $operation['options']['per_page'] ) ) {
+        if ( ! empty( $operation['options']['count'] ) ) {
+            $query_options['Count'] = true;
+            $query_options['Top'] = 0;
+        } elseif ( ! empty( $operation['options']['per_page'] ) ) {
             $query_options['Top'] = $operation['options']['per_page'];
         }
 
@@ -613,6 +628,10 @@ class Dynamics_Batch_Builder {
 
         if ( isset( $query_options['Filter'] ) ) {
             $query_parameters['$filter'] = $query_options['Filter'];
+        }
+
+        if ( isset( $query_options['Count'] ) ) {
+            $query_parameters['$count'] = 'true';
         }
 
         if ( isset( $query_options['Top'] ) ) {
@@ -905,6 +924,10 @@ class Dynamics_Batch_Builder {
         $data = json_decode( $response_body );
         if ( ! is_object( $data ) || ! isset( $data->value ) ) {
             return $collection;
+        }
+
+        if ( isset( $data->{'@odata.count'} ) ) {
+            $collection->TotalRecordCount = (int) $data->{'@odata.count'};
         }
 
         $metadata = $this->client->getMetadata();
