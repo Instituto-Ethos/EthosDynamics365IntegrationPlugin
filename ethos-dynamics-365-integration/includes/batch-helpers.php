@@ -887,11 +887,11 @@ class Dynamics_Batch_Builder {
     }
 
     private function extract_entity_id_from_headers( array $headers ): ?string {
-        if ( ! isset( $headers['odata-entity-id'] ) ) {
+        if ( ! isset( $headers['odata-entityid'] ) ) {
             return null;
         }
 
-        $header_value = $headers['odata-entity-id'];
+        $header_value = $headers['odata-entityid'];
         $id = substr( $header_value, strrpos( $header_value, '(' ) + 1, 36 );
         return $id === false ? null : $id;
     }
