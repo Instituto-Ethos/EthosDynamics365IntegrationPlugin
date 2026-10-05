@@ -271,6 +271,128 @@ function iterate_crm_entities( string $entity, array $args = [] ) {
     }
 }
 
+/**
+ * Builds the FetchXML for a single page of results.
+ *
+ * Uses page-number pagination (`page`/`count` fetch attributes), so the cursor
+ * is a plain integer: it can be persisted between runs and retried at any
+ * time, unlike opaque paging cookies. The primary key is appended as an order
+ * tiebreaker to keep page offsets deterministic. When no `<attribute>`
+ * elements are declared, the CRM returns all columns.
+ *
+ * @param string $entity    Entity logical name (e.g. 'account').
+ * @param int    $page      1-based page number.
+ * @param int    $per_page  Page size (fetch `count`).
+ * @param array  $filters   Attribute => value map. Arrays of values become a
+ *                          single `in` condition.
+ * @param string $orderby   Attribute to order by.
+ * @param string $order     'ASC' or 'DESC'.
+ *
+ * @return string The FetchXML document.
+ */
+function build_crm_entities_page_fetch_xml( string $entity, int $page, int $per_page, array $filters, string $orderby, string $order ): string {
+    $fetch = new \SimpleXMLElement( '<fetch/>' );
+    $fetch['count'] = (string) max( 1, $per_page );
+    $fetch['page'] = (string) max( 1, $page );
+    $fetch['returntotalrecordcount'] = 'true';
+
+    $entity_element = $fetch->addChild( 'entity' );
+    $entity_element['name'] = $entity;
+
+    $order_element = $entity_element->addChild( 'order' );
+    $order_element['attribute'] = $orderby;
+    $order_element['descending'] = ( strtoupper( $order ) === 'DESC' ) ? 'true' : 'false';
+
+    $tiebreaker = $entity_element->addChild( 'order' );
+    $tiebreaker['attribute'] = $entity . 'id';
+    $tiebreaker['descending'] = 'false';
+
+    $filters = array_filter( $filters, function ( $value ) {
+        return ( $value !== null && $value !== '' );
+    } );
+
+    if ( ! empty( $filters ) ) {
+        $filter_element = $entity_element->addChild( 'filter' );
+        $filter_element['type'] = 'and';
+
+        foreach ( $filters as $attribute => $value ) {
+            $condition = $filter_element->addChild( 'condition' );
+            $condition['attribute'] = (string) $attribute;
+
+            if ( is_array( $value ) ) {
+                $condition['operator'] = 'in';
+
+                foreach ( $value as $item ) {
+                    $condition->addChild( 'value', (string) $item );
+                }
+            } else {
+                $condition['operator'] = 'eq';
+                $condition['value'] = (string) $value;
+            }
+        }
+    }
+
+    return $fetch->asXML();
+}
+
+/**
+ * Retrieves a single page of CRM entities using FetchXML page-number
+ * pagination (a restartable cursor).
+ *
+ * Mirrors iterate_crm_entities(), but returns exactly one page instead of a
+ * generator over the whole result set, so long-running iterations can be
+ * split into chunks. `EntityCollection::MoreRecords` tells whether further
+ * pages exist.
+ *
+ * @param string $entity Entity logical name.
+ * @param array  $args   {
+ *     @type int    $page     1-based page number. Default 1.
+ *     @type int    $per_page Page size. Default 100.
+ *     @type string $orderby  Attribute to order by. Default 'name'.
+ *     @type string $order    'ASC' (default) or 'DESC'.
+ *     @type array  $filters  Attribute => value map; array values become `in` conditions.
+ * }
+ *
+ * @return \AlexaCRM\Xrm\EntityCollection|null The requested page, or null when
+ *                                             the query or transport failed.
+ */
+function get_crm_entities_page( string $entity, array $args = [] ) {
+    if ( ! class_exists( '\AlexaCRM\Xrm\Query\FetchExpression' ) ) {
+        return null;
+    }
+
+    $params = wp_parse_args( $args, [
+        'page'     => 1,
+        'per_page' => 100,
+        'orderby'  => 'name',
+        'order'    => 'ASC',
+        'filters'  => [],
+    ] );
+
+    try {
+        $fetch_xml = build_crm_entities_page_fetch_xml(
+            $entity,
+            (int) $params['page'],
+            (int) $params['per_page'],
+            (array) $params['filters'],
+            (string) $params['orderby'],
+            (string) $params['order']
+        );
+
+        $query = new \AlexaCRM\Xrm\Query\FetchExpression( $fetch_xml );
+
+        $client = get_client_on_dynamics();
+
+        if ( $client !== false ) {
+            return $client->RetrieveMultiple( $query );
+        }
+    } catch ( \Exception $e ) {
+        do_action( 'logger', $e->getMessage() );
+    }
+
+    return null;
+}
+
 function get_crm_entity_by_id( string $entity_name, string $entity_id, array $args = [] ) {
     $params = wp_parse_args($args, [
         'cache' => 6 * HOUR_IN_SECONDS,

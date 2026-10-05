@@ -369,13 +369,14 @@ function render_migration_status_section() {
     $next_run = wp_next_scheduled( 'ethos_migration\run_daily' );
     $is_running = ! empty( get_transient( \ethos\migration\LOCK_KEY ) );
     $last_run = get_option( \ethos\migration\LAST_RUN_OPTION, [] );
+    $cycle = defined( 'ethos\\migration\\CYCLE_OPTION' ) ? get_option( \ethos\migration\CYCLE_OPTION, [] ) : [];
 
     echo '<hr />';
     echo '<h2>Migração incremental (diária)</h2>';
 
     echo '<table class="widefat striped" style="max-width:600px;">';
     if ( $is_running ) {
-        echo '<tr><th>Status</th><td><strong>Execução em andamento</strong></td></tr>';
+        echo '<tr><th>Status</th><td><strong>Chunk em execução</strong></td></tr>';
     }
     if ( ! empty( $next_run ) ) {
         echo '<tr><th>Próxima execução</th><td>' . esc_html( wp_date( 'd/m/Y H:i:s P', $next_run ) ) . '</td></tr>';
@@ -383,6 +384,24 @@ function render_migration_status_section() {
         echo '<tr><th>Próxima execução</th><td><strong>Evento não agendado</strong> (será reagendado no próximo acesso ao site)</td></tr>';
     }
     echo '</table>';
+
+    if ( ! empty( $cycle ) ) {
+        $next_chunk = wp_next_scheduled( \ethos\migration\CHUNK_HOOK );
+
+        echo '<h3>Ciclo em andamento</h3>';
+        echo '<table class="widefat striped" style="max-width:600px;">';
+        echo '<tr><th>Página atual</th><td>' . (int) ( $cycle['page'] ?? 0 ) . ' (' . (int) ( $cycle['per_page'] ?? 0 ) . ' contas por página)</td></tr>';
+        echo '<tr><th>Contas ativas vistas</th><td>' . count( $cycle['active_account_ids'] ?? [] ) . '</td></tr>';
+        echo '<tr><th>Contatos importados/atualizados</th><td>' . (int) ( $cycle['total_count'] ?? 0 ) . '</td></tr>';
+        echo '<tr><th>Erros</th><td>' . (int) ( $cycle['total_errors'] ?? 0 ) . '</td></tr>';
+        echo '<tr><th>Início</th><td>' . esc_html( $cycle['started'] ?? '' ) . '</td></tr>';
+
+        if ( ! empty( $next_chunk ) ) {
+            echo '<tr><th>Próximo chunk</th><td>' . esc_html( wp_date( 'd/m/Y H:i:s P', $next_chunk ) ) . '</td></tr>';
+        }
+
+        echo '</table>';
+    }
 
     if ( ! empty( $last_run ) ) {
         echo '<h3>Última execução</h3>';
@@ -393,6 +412,11 @@ function render_migration_status_section() {
         echo '<tr><th>Contas ativas no CRM</th><td>' . (int) ( $last_run['active_accounts'] ?? 0 ) . '</td></tr>';
         echo '<tr><th>Contatos importados/atualizados</th><td>' . (int) ( $last_run['contacts'] ?? 0 ) . '</td></tr>';
         echo '<tr><th>Erros</th><td>' . (int) ( $last_run['errors'] ?? 0 ) . '</td></tr>';
+
+        $run_status = $last_run['status'] ?? 'completed';
+        if ( $run_status === 'aborted' ) {
+            echo '<tr><th>Status</th><td><strong style="color:#b32d2e;">Abortado</strong> — ' . esc_html( $last_run['abort_reason'] ?? 'motivo desconhecido' ) . '</td></tr>';
+        }
 
         $cleanup = $last_run['cleanup'] ?? [];
         if ( ( $cleanup['status'] ?? '' ) === 'done' ) {

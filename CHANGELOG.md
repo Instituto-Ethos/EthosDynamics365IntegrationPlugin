@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-10-05
+
+### Added
+
+- `get_crm_entities_page()`: retrieves a single page of CRM entities using FetchXML page-number pagination (a restartable cursor), enabling chunked long-running iterations
+- Migration status panel: in-progress cycle progress (current page, accounts seen, contacts, errors, next chunk)
+
+## [0.9.0] - 2026-08-07
+
+- Support for batching requests to CRM
+
 ## [0.8.0] - 2026-02-19
 
 ### Changed
