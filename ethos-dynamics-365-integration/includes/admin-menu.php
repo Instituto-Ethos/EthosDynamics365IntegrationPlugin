@@ -367,9 +367,9 @@ function render_migration_status_section() {
     }
 
     $next_run = wp_next_scheduled( 'ethos_migration\run_daily' );
-    $is_running = ! empty( get_transient( \ethos\migration\LOCK_KEY ) );
-    $last_run = get_option( \ethos\migration\LAST_RUN_OPTION, [] );
-    $cycle = defined( 'ethos\\migration\\CYCLE_OPTION' ) ? get_option( \ethos\migration\CYCLE_OPTION, [] ) : [];
+    $is_running = ! empty( get_transient( 'ethos_migration_lock' ) );
+    $last_run = get_option( '_ethos_migration_last_run', [] );
+    $cycle = get_option( '_ethos_migration_cycle', [] );
 
     echo '<hr />';
     echo '<h2>Migração incremental (diária)</h2>';
@@ -386,7 +386,7 @@ function render_migration_status_section() {
     echo '</table>';
 
     if ( ! empty( $cycle ) ) {
-        $next_chunk = wp_next_scheduled( \ethos\migration\CHUNK_HOOK );
+        $next_chunk = wp_next_scheduled( 'ethos_migration\run_chunk' );
 
         echo '<h3>Ciclo em andamento</h3>';
         echo '<table class="widefat striped" style="max-width:600px;">';
