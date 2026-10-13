@@ -46,12 +46,12 @@ class Ethos_WP_Cache_Item implements CacheItemInterface {
         return $this;
     }
 
-    public function expiresAt( ?\DateTimeInterface $expiration ): static {
+    public function expiresAt( $expiration ): static {
         $this->expires_at = $expiration?->getTimestamp();
         return $this;
     }
 
-    public function expiresAfter( int|\DateInterval|null $time ): static {
+    public function expiresAfter( $time ): static {
         if ( null === $time ) {
             $this->expires_at = null;
         } elseif ( $time instanceof \DateInterval ) {
@@ -83,7 +83,7 @@ class Ethos_WP_Cache_Pool implements CacheItemPoolInterface {
     /** @var array<string, CacheItemInterface> */
     private array $deferred = [];
 
-    public function getItem( string $key ): CacheItemInterface {
+    public function getItem( $key ): CacheItemInterface {
         $item = new Ethos_WP_Cache_Item( $key );
 
         $found = wp_cache_get( $key, self::GROUP );
@@ -105,7 +105,7 @@ class Ethos_WP_Cache_Pool implements CacheItemPoolInterface {
         return $items;
     }
 
-    public function hasItem( string $key ): bool {
+    public function hasItem( $key ): bool {
         return $this->getItem( $key )->isHit();
     }
 
@@ -114,7 +114,7 @@ class Ethos_WP_Cache_Pool implements CacheItemPoolInterface {
         return false;
     }
 
-    public function deleteItem( string $key ): bool {
+    public function deleteItem( $key ): bool {
         return wp_cache_delete( $key, self::GROUP );
     }
 
