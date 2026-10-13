@@ -217,10 +217,22 @@ function send_lead_to_crm( $post_id ) {
 
 /**
  * Retorna uma instancia de `client` do Dynamics
+ *
+ * Memoizada por request (P1): a construção unserializa o metadata
+ * multi-MB do cache — uma vez por request basta. Falhas não são
+ * memoizadas. A duração da construção alimenta o portão de decisão
+ * da Fase 2 (share do metadata vs roundtrips).
  */
 function get_client_on_dynamics() {
+    static $client = null;
+
+    if ( null !== $client ) {
+        return $client;
+    }
 
     try {
+        $started_at = microtime( true );
+
         $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
             get_crm_server_url(),
             get_crm_application_id(),
@@ -229,6 +241,9 @@ function get_client_on_dynamics() {
                 'cachePool' => get_psr6_cache(),
             ],
         );
+
+        $elapsed_ms = (int) round( ( microtime( true ) - $started_at ) * 1000 );
+        do_action( 'logger', "Dynamics 365 client constructed in {$elapsed_ms}ms (metadata unserialize share - Fase 2 gate metric)" );
 
         return $client;
     } catch ( \Exception $e ) {
