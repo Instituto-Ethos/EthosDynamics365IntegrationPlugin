@@ -231,8 +231,6 @@ function get_client_on_dynamics() {
     }
 
     try {
-        $started_at = microtime( true );
-
         $client = \AlexaCRM\WebAPI\ClientFactory::createOnlineClient(
             get_crm_server_url(),
             get_crm_application_id(),
@@ -241,9 +239,6 @@ function get_client_on_dynamics() {
                 'cachePool' => get_psr6_cache(),
             ],
         );
-
-        $elapsed_ms = (int) round( ( microtime( true ) - $started_at ) * 1000 );
-        do_action( 'logger', "Dynamics 365 client constructed in {$elapsed_ms}ms (metadata unserialize share - Fase 2 gate metric)" );
 
         return $client;
     } catch ( \Exception $e ) {
