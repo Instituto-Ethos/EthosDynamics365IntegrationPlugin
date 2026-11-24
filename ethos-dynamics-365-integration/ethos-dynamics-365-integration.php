@@ -35,5 +35,7 @@ if ( hacklabr\check_plugin_dependencies() ) {
     require_once( 'includes/admin-menu.php' );
     require_once( 'includes/dynamics365-data-sender.php' );
     require_once( 'includes/cron.php' );
+    require_once( 'includes/association-api.php' );
+    require_once( 'includes/admin-saldo-test.php' );
 }
 

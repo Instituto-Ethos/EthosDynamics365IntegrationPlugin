@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `includes/association-api.php`: reusable layer for the Plano de Associação Custom APIs in the CRM (definition in `docs/api-plano-associacao.md`). Domain functions in PT — `consultar_saldo()` (accepts numeric and the new alphanumeric CNPJ; short-lived transient cache with `$fresh` bypass), `criar_transacao_credito()`, `criar_transacoes_lote()`, `estornar_transacao()`, `obter_associadas()`, `obter_contatos_aprovados()` — over a generic `crm_call_custom_action()` that maps OData errors to `WP_Error` carrying the CRM message, and works around the toolkit bug with bound actions. Wire action names centralized in `CRM_ACTION_*` constants. Validated end-to-end in the sandbox: balance query, credit consumption and refund loop
+- `includes/admin-saldo-test.php`: admin test page for the balance query (Ferramentas → *Ethos d365i Saldo*, slug `ethos-saldo-test`), kept out of the domain layer
+
+## [0.12.1] - 2026-10-27
+
+### Removed
+
+- Timing telemetry log emitted during Dynamics client construction
+
+## [0.12.0] - 2026-10-13
+
+### Added
+
+- `includes/psr6-cache.php`: minimal PSR-6 cache pool over `wp_cache_*`, replacing snicco/better-wp-cache and the nullcacheitem compatibility patch
+
+### Changed
+
+- Registration flow optimizations (batch helpers, CRM helpers, data sender)
+- Composer dependencies trimmed (patch machinery removed)
+
+## [0.11.1] - 2026-10-05
+
+### Fixed
+
+- Admin panel: migration in-progress check now reads the chunk lock transient (was reusing the cycle lock key)
+
 ## [0.11.0] - 2026-10-05
 
 ### Added
