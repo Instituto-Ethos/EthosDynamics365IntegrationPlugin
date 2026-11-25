@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `consultar_saldo_detalhado()`: balance query enriched with used credits per faixa — resolves the partnership's plan (`obter_plano_da_parceria()`), reads the plan composition (`obter_composicao_plano()`, active records only, long-lived cache) and derives utilization via the pure `calcular_creditos_utilizados()` (clamped at zero). Contract for the associates area display (total consumed + validity)
+
 ## [0.13.0] - 2026-11-25
 
 ### Added

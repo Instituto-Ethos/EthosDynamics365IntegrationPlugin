@@ -257,6 +257,35 @@ Semântica de `resumo`: `quantidadeTotalCreditos` = soma simples das
 quantidades (participações); `totalCreditosPuros` = soma ponderada pelo peso
 (base C = 1). Detalhe em [plano] §7.
 
+### 5.3-bis Composição do plano e créditos utilizados (implementado)
+
+Quatro funções complementares para o "total consumido" da Área da Associada
+(regras no plugin; exibição no tema):
+
+```php
+// GUID do plano vinculado à parceria (lookup i4d_plano de fut_parceria).
+// Cache 1h (filtro 'hacklabr/associacao_dados_cadastrais_cache_ttl').
+function obter_plano_da_parceria( string $parceria_guid ): ?string;
+
+// Composição do plano: [ GUID da faixa => créditos ], lendo i4d_faixa_planos
+// APENAS statecode=0 (planos desativados deixam linhas Inativas). Cache 12h
+// (filtro 'hacklabr/composicao_plano_cache_ttl').
+function obter_composicao_plano( string $plano_guid ): ?array;
+
+// PURA (testável sem CRM): utilizado = max(0, composição − saldo) por faixa.
+// Sem composição → ['disponivel' => false, ...].
+function calcular_creditos_utilizados( object $saldo, ?array $composicao ): array;
+
+// Contrato para exibição: consultar_saldo() + ->utilizados anexado.
+function consultar_saldo_detalhado( string $cnpj, bool $fresh = false );
+```
+
+`consultar_saldo_detalhado()` retorna o shape §5.3 acrescido de
+`$saldo->utilizados = [ 'disponivel' => bool, 'por_faixa' => [ 'A' => n, … ],
+'total' => int ]`. Observações: o clamp `max(0, …)` existe porque cargas
+manuais podem exceder a composição; a composição mapeia por **GUID** da
+faixa (o `faixaId` já vem na resposta do saldo).
+
 Shapes das demais actions **observados no sandbox (24/11/2026)**:
 
 - `criar_transacao_credito()` → `{ Sucesso: bool, Mensagem: string,
@@ -309,7 +338,7 @@ Shapes das demais actions **observados no sandbox (24/11/2026)**:
 | Implementação futura | Usa | Observação |
 |---|---|---|
 | Inscrição em eventos consome crédito (impacto #5 do [plano]) | `consultar_saldo(fresh)` → `criar_transacao_credito(inscricao_id, projeto_id)` | `InscricaoId`/`ProjetoId` amarram o consumo à inscrição — depende da dúvida 1 (o que é "Inscrição" para o CRM) |
-| Área do associado exibe saldo (impacto #8) | `consultar_saldo()` cacheado | Exibição tolera TTL |
+| Área do associado exibe saldo (impacto #8) | `consultar_saldo_detalhado()` (saldo + composição + utilizados + vigência) | Exibição tolera TTL; consumido derivado da composição do plano |
 | Checagem de vigência no login ([plano] §6.4) | `parceria.dataFim` (saldo) ou meta do sync | Fonte ainda em aberto ([plano] §8.2) |
 | Sync incremental parceria/plano ([plano] §10 item 6) | `obter_associadas()` | Candidata a substituir/juntar com a leitura de contas |
 | Aprovações de acesso | `obter_contatos_aprovados()` | A validar conjugação com PMPro Approvals |

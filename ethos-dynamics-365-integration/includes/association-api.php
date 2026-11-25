@@ -216,6 +216,183 @@ function consultar_saldo( string $cnpj, bool $fresh = false ) {
 }
 
 /**
+ * Retorna o GUID do plano vinculado a uma parceria.
+ *
+ * Lê o lookup i4d_plano da própria fut_parceria (amarração canônica do
+ * modelo). Cache de 1h (só muda em renovação/troca de plano).
+ *
+ * @param string $parceria_guid GUID da parceria.
+ * @return string|null GUID do plano ou null (parceria sem plano / falha).
+ */
+function obter_plano_da_parceria( string $parceria_guid ): ?string {
+    if ( '' === $parceria_guid ) {
+        return null;
+    }
+
+    $cache_key = 'assoc_plano_parceria_' . sha1( $parceria_guid );
+    $cached = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        return '' === $cached ? null : $cached;
+    }
+
+    $client = get_client_on_dynamics();
+
+    if ( false === $client ) {
+        return null;
+    }
+
+    try {
+        $parceria = $client->getClient()->executeWebRequest(
+            'fut_parcerias(' . $parceria_guid . ')?$select=_i4d_plano_value'
+        );
+    } catch ( \Throwable $e ) {
+        return null;
+    }
+
+    $plano_guid = $parceria->_i4d_plano_value ?? null;
+
+    $ttl = (int) apply_filters( 'hacklabr/associacao_dados_cadastrais_cache_ttl', HOUR_IN_SECONDS );
+    set_transient( $cache_key, (string) $plano_guid, $ttl );
+
+    return $plano_guid;
+}
+
+/**
+ * Retorna a composição de créditos de um plano (i4d_faixa_plano).
+ *
+ * Apenas registros ativos: planos desativados deixam suas linhas de
+ * composição como Inativas no CRM. Cache longo (12h — definição de plano
+ * muda raramente; filtro 'hacklabr/composicao_plano_cache_ttl').
+ *
+ * @param string $plano_guid GUID do plano (i4d_planos).
+ * @return array|null Mapa [ GUID da faixa => créditos ] ou null em falha.
+ */
+function obter_composicao_plano( string $plano_guid ): ?array {
+    if ( '' === $plano_guid ) {
+        return null;
+    }
+
+    $cache_key = 'assoc_composicao_plano_' . sha1( $plano_guid );
+    $cached = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        return '' === $cached ? null : $cached;
+    }
+
+    $client = get_client_on_dynamics();
+
+    if ( false === $client ) {
+        return null;
+    }
+
+    $composicao = [];
+
+    try {
+        $linhas = $client->getClient()->executeWebRequest(
+            'i4d_faixa_planos?$filter=_i4d_plano_value%20eq%20' . $plano_guid
+            . '%20and%20statecode%20eq%200&$select=i4d_credito,_i4d_faixa_value'
+        );
+
+        foreach ( ( $linhas->value ?? [] ) as $linha ) {
+            $faixa = $linha->_i4d_faixa_value ?? null;
+            $credito = (int) ( $linha->i4d_credito ?? 0 );
+
+            if ( ! empty( $faixa ) ) {
+                $composicao[ $faixa ] = $credito;
+            }
+        }
+    } catch ( \Throwable $e ) {
+        return null;
+    }
+
+    if ( empty( $composicao ) ) {
+        return null;
+    }
+
+    $ttl = (int) apply_filters( 'hacklabr/composicao_plano_cache_ttl', 12 * HOUR_IN_SECONDS );
+    set_transient( $cache_key, $composicao, $ttl );
+
+    return $composicao;
+}
+
+/**
+ * Calcula os créditos utilizados por faixa (função PURA — testável sem CRM).
+ *
+ * Utilizado = composição do plano − saldo atual, por faixa, nunca negativo
+ * (cargas manuais de teste ou créditos extras podem exceder a composição).
+ * Sem composição disponível, retorna vazio (consumido não derivável).
+ *
+ * @param object      $saldo      Objeto normalizado de consultar_saldo().
+ * @param array|null  $composicao Mapa [ GUID da faixa => créditos ] (obter_composicao_plano()).
+ *
+ * @return array {
+ *     @type bool  $disponivel     Composição conhecida (cálculo possível)?
+ *     @type array $por_faixa      [ letra da faixa => créditos utilizados ].
+ *     @type int   $total          Total de participações utilizadas.
+ * }
+ */
+function calcular_creditos_utilizados( object $saldo, ?array $composicao ): array {
+    $resultado = [
+        'disponivel' => false,
+        'por_faixa'  => [],
+        'total'      => 0,
+    ];
+
+    if ( empty( $composicao ) || empty( $saldo->saldos ) ) {
+        return $resultado;
+    }
+
+    foreach ( $saldo->saldos as $item ) {
+        $faixa_id = $item->faixaId ?? null;
+        $faixa = $item->faixaNome ?? null;
+        $atual = (int) ( $item->quantidadeCreditos ?? 0 );
+
+        if ( empty( $faixa ) || ! isset( $composicao[ $faixa_id ] ) ) {
+            continue;
+        }
+
+        $utilizado = max( 0, (int) $composicao[ $faixa_id ] - $atual );
+
+        $resultado['por_faixa'][ $faixa ] = $utilizado;
+        $resultado['total'] += $utilizado;
+    }
+
+    $resultado['disponivel'] = ! empty( $resultado['por_faixa'] );
+
+    return $resultado;
+}
+
+/**
+ * Consulta o saldo detalhado da associação: saldo + composição + utilizados.
+ *
+ * Enriquece o retorno de consultar_saldo() com os créditos utilizados por
+ * faixa (derivados da composição do plano da parceria). É o contrato para a
+ * exibição da Área da Associada (consumido + vigência), mantendo o cálculo
+ * no plugin e a apresentação no tema.
+ *
+ * @param string $cnpj  CNPJ com ou sem máscara (14 caracteres alfanuméricos).
+ * @param bool   $fresh true para ignorar o cache do saldo.
+ *
+ * @return object|\WP_Error Saldo normalizado + ->utilizados (array) ou WP_Error.
+ */
+function consultar_saldo_detalhado( string $cnpj, bool $fresh = false ) {
+    $saldo = consultar_saldo( $cnpj, $fresh );
+
+    if ( is_wp_error( $saldo ) ) {
+        return $saldo;
+    }
+
+    $parceria_guid = $saldo->parceria->id ?? null;
+    $plano_guid = $parceria_guid ? obter_plano_da_parceria( (string) $parceria_guid ) : null;
+    $composicao = $plano_guid ? obter_composicao_plano( $plano_guid ) : null;
+
+    $saldo->utilizados = calcular_creditos_utilizados( $saldo, $composicao );
+
+    return $saldo;
+}
+
+/**
  * Registra uma transação no ledger de créditos da associação (consumo/ajuste).
  *
  * ATENÇÃO: transações são reais e imutáveis no CRM (o estorno cria uma
