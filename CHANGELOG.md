@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `consultar_saldo_detalhado()`: balance query enriched with used credits per faixa — resolves the partnership's plan (`obter_plano_da_parceria()`), reads the plan composition (`obter_composicao_plano()`, active records only, long-lived cache) and derives utilization via the pure `calcular_creditos_utilizados()` (clamped at zero). Contract for the associates area display (total consumed + validity)
+- `obter_faixa_do_projeto()`, `tem_saldo_na_faixa()` and `parceria_esta_vigente()`: event faixa lookup (long-lived cache) and pure balance/validity checks backing the pre-registration gate (RQ-0004) consumed by the theme's event form
 
 ## [0.13.0] - 2026-11-25
 

@@ -286,6 +286,23 @@ function consultar_saldo_detalhado( string $cnpj, bool $fresh = false );
 manuais podem exceder a composição; a composição mapeia por **GUID** da
 faixa (o `faixaId` já vem na resposta do saldo).
 
+Complementares do §2.3 do plano (gate de inscrição — RQ-0004):
+
+```php
+// Faixa (A/B/C) de um projeto/evento — lookup i4d_faixa de fut_projeto,
+// cache longo (filtro 'hacklabr/composicao_plano_cache_ttl').
+function obter_faixa_do_projeto( string $projeto_guid ): ?string;
+
+// PURAS: decisão de bloqueio pré-inscrição.
+function tem_saldo_na_faixa( object $saldo, string $faixa ): bool;
+function parceria_esta_vigente( object $saldo ): bool;
+```
+
+Consumidas pelo tema em `check_event_balance_availability()`
+(events/form.php): evento pago + associada com parceria + evento com faixa
+→ sem saldo na faixa ou vigência encerrada = inscrição bloqueada com
+mensagem orientativa (RQ-0004). Sem dados do novo modelo → fluxo legado.
+
 Shapes das demais actions **observados no sandbox (24/11/2026)**:
 
 - `criar_transacao_credito()` → `{ Sucesso: bool, Mensagem: string,

@@ -317,6 +317,87 @@ function obter_composicao_plano( string $plano_guid ): ?array {
 }
 
 /**
+ * Retorna a faixa (A, B ou C) de um projeto/evento do CRM.
+ *
+ * Lê o lookup i4d_faixa de fut_projeto. Cache longo (definição de
+ * classificação, raramente reclassificada; filtro
+ * 'hacklabr/composicao_plano_cache_ttl' compartilhado).
+ *
+ * @param string $projeto_guid GUID do projeto (fut_projeto).
+ * @return string|null Letra da faixa ou null (sem classificação / falha).
+ */
+function obter_faixa_do_projeto( string $projeto_guid ): ?string {
+    if ( '' === $projeto_guid ) {
+        return null;
+    }
+
+    $cache_key = 'assoc_faixa_projeto_' . sha1( $projeto_guid );
+    $cached = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        return '' === $cached ? null : $cached;
+    }
+
+    $client = get_client_on_dynamics();
+
+    if ( false === $client ) {
+        return null;
+    }
+
+    try {
+        $projeto = $client->getClient()->executeWebRequest(
+            'fut_projetos(' . $projeto_guid . ')?$select=_i4d_faixa_value'
+        );
+    } catch ( \Throwable $e ) {
+        return null;
+    }
+
+    $faixa = $projeto->{'_i4d_faixa_value@OData.Community.Display.V1.FormattedValue'} ?? null;
+
+    $ttl = (int) apply_filters( 'hacklabr/composicao_plano_cache_ttl', 12 * HOUR_IN_SECONDS );
+    set_transient( $cache_key, (string) $faixa, $ttl );
+
+    return $faixa;
+}
+
+/**
+ * Verifica se há saldo disponível em uma faixa (PURE — testável sem CRM).
+ *
+ * @param object $saldo Objeto normalizado de consultar_saldo().
+ * @param string $faixa Letra da faixa (A, B ou C).
+ * @return bool True se existir quantidade positiva na faixa.
+ */
+function tem_saldo_na_faixa( object $saldo, string $faixa ): bool {
+    foreach ( ( $saldo->saldos ?? [] ) as $item ) {
+        if ( ( $item->faixaNome ?? '' ) === $faixa ) {
+            return (int) ( $item->quantidadeCreditos ?? 0 ) > 0;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Verifica se a vigência da parceria está em curso (PURE).
+ *
+ * Sem dataFim informada → considera vigente (não bloqueia sem dados).
+ *
+ * @param object $saldo Objeto normalizado de consultar_saldo().
+ * @return bool True se a vigência não está encerrada.
+ */
+function parceria_esta_vigente( object $saldo ): bool {
+    $fim = $saldo->parceria->dataFim ?? null;
+
+    if ( empty( $fim ) ) {
+        return true;
+    }
+
+    $data = \DateTimeImmutable::createFromFormat( 'Y-m-d\TH:i:s\Z', $fim );
+
+    return $data ? ( time() < $data->getTimestamp() ) : true;
+}
+
+/**
  * Calcula os créditos utilizados por faixa (função PURA — testável sem CRM).
  *
  * Utilizado = composição do plano − saldo atual, por faixa, nunca negativo
