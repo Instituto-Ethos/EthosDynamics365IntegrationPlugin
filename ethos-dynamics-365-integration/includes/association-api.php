@@ -398,6 +398,141 @@ function parceria_esta_vigente( object $saldo ): bool {
 }
 
 /**
+ * Lista as faixas (A/B/C) com seus pesos (GUID => letra/peso).
+ *
+ * Cache longo (filtro 'hacklabr/composicao_plano_cache_ttl').
+ *
+ * @return array|null Mapa [ GUID da faixa => ['letra' => 'A', 'peso' => 4] ].
+ */
+function obter_faixas (): ?array {
+    $cache_key = 'assoc_faixas';
+    $cached = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        return '' === $cached ? null : $cached;
+    }
+
+    $client = get_client_on_dynamics();
+
+    if ( false === $client ) {
+        return null;
+    }
+
+    $faixas = [];
+
+    try {
+        $r = $client->getClient()->executeWebRequest(
+            'i4d_faixas?$filter=statecode%20eq%200&$select=i4d_faixa,i4d_peso'
+        );
+
+        foreach ( ( $r->value ?? [] ) as $f ) {
+            $letra = $f->i4d_faixa ?? null;
+            if ( ! empty( $letra ) ) {
+                $faixas[ $f->i4d_faixaid ] = [
+                    'letra' => $letra,
+                    'peso'  => (int) ( $f->i4d_peso ?? 0 ),
+                ];
+            }
+        }
+    } catch ( \Throwable $e ) {
+        return null;
+    }
+
+    if ( empty( $faixas ) ) {
+        return null;
+    }
+
+    $ttl = (int) apply_filters( 'hacklabr/composicao_plano_cache_ttl', 12 * HOUR_IN_SECONDS );
+    set_transient( $cache_key, $faixas, $ttl );
+
+    return $faixas;
+}
+
+/**
+ * Lista os planos disponíveis do novo modelo, com composição por faixa.
+ *
+ * Contrato para o wizard de associação e exibições de benefícios (regras no
+ * plugin; o tema só apresenta). Planos ativos com composição; ordenação
+ * alfabética pelo nome. Cache longo.
+ *
+ * @return array|null Lista de objetos { id, nome, desconto, faixas: [ letra => créditos ] }.
+ */
+function obter_planos_disponiveis (): ?array {
+    $cache_key = 'assoc_planos_disponiveis';
+    $cached = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        return '' === $cached ? null : $cached;
+    }
+
+    $faixas = obter_faixas();
+
+    if ( empty( $faixas ) ) {
+        return null;
+    }
+
+    $client = get_client_on_dynamics();
+
+    if ( false === $client ) {
+        return null;
+    }
+
+    $planos = [];
+
+    try {
+        $r = $client->getClient()->executeWebRequest(
+            'i4d_planoses?$filter=statecode%20eq%200&$select=i4d_plano,i4d_planosid,i4d_desconto'
+        );
+
+        foreach ( ( $r->value ?? [] ) as $p ) {
+            $guid = $p->i4d_planosid ?? null;
+            $nome = $p->i4d_plano ?? null;
+
+            if ( empty( $guid ) || empty( $nome ) ) {
+                continue;
+            }
+
+            $composicao = obter_composicao_plano( $guid );
+            $faixas_plano = [];
+
+            foreach ( ( $composicao ?? [] ) as $faixa_guid => $credito ) {
+                $letra = $faixas[ $faixa_guid ]['letra'] ?? null;
+                if ( ! empty( $letra ) ) {
+                    $faixas_plano[ $letra ] = (int) $credito;
+                }
+            }
+
+            // Plano sem composição por faixa não é apresentável no wizard.
+            if ( empty( $faixas_plano ) ) {
+                continue;
+            }
+
+            $planos[] = (object) [
+                'id'      => $guid,
+                'nome'    => $nome,
+                'desconto' => (float) ( $p->i4d_desconto ?? 0 ),
+                'faixas'  => $faixas_plano,
+            ];
+        }
+    } catch ( \Throwable $e ) {
+        return null;
+    }
+
+    if ( empty( $planos ) ) {
+        return null;
+    }
+
+    usort( $planos, function ( $a, $b ) {
+        return strcmp( $a->nome, $b->nome );
+    } );
+
+    $ttl = (int) apply_filters( 'hacklabr/composicao_plano_cache_ttl', 12 * HOUR_IN_SECONDS );
+    set_transient( $cache_key, $planos, $ttl );
+
+    return $planos;
+}
+
+/**
  * Calcula os créditos utilizados por faixa (função PURA — testável sem CRM).
  *
  * Utilizado = composição do plano − saldo atual, por faixa, nunca negativo
